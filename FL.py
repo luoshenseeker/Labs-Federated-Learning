@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pickle
+import time
 
 
 """UPLOADING THE DATASETS"""
@@ -27,6 +29,7 @@ try:
 except:
     mu = 0.0
 
+NEWLINE = '\n'
 
 """GET THE HYPERPARAMETERS"""
 from py_func.hyperparams import get_hyperparams
@@ -49,9 +52,25 @@ print(file_name)
 
 
 """GET THE DATASETS USED FOR THE FL TRAINING"""
-from py_func.read_db import get_dataloaders
+from data_partition.CIFAR10_dirichlet import get_CIFAR10_dataloaders, get_num_cnt
+from data_partition.MNIST import get_MNIST_dataloaders
+from data_partition.FMNIST import get_FMNIST_dataloaders
 
-list_dls_train, list_dls_test = get_dataloaders(dataset, batch_size)
+if dataset[:5] == "MNIST":
+    list_dls_train, list_dls_test = get_MNIST_dataloaders(dataset, batch_size)
+elif dataset[:5] == "CIFAR":
+    list_dls_train, list_dls_test = get_CIFAR10_dataloaders(dataset, batch_size)
+elif dataset[:6] == "FMNIST":
+    list_dls_train, list_dls_test = get_FMNIST_dataloaders(dataset, batch_size)
+
+get_num_cnt(dataset, list_dls_train)
+
+
+# """CLUSTER THE CLIENTS"""
+# from cluster import cluster_train
+#
+# fr = open('saved_exp_info/cluster_result/cifar10_balance_dir.pkl', 'rb')
+# cluster_result = pickle.load(fr)
 
 
 """NUMBER OF SAMPLED CLIENTS"""
@@ -87,8 +106,51 @@ if sampling == "random" and (
         mu,
     )
 
+    # from py_func.FedProx import FedProx_stratified_sampling
+    #
+    # FedProx_stratified_sampling(
+    #     sampling,
+    #     model_0,
+    #     n_sampled,
+    #     list_dls_train,
+    #     list_dls_test,
+    #     n_iter,
+    #     n_SGD,
+    #     lr,
+    #     file_name,
+    #     sim_type,
+    #     0,
+    #     decay,
+    #     meas_perf_period,
+    #     mu,
+    # )
+
 
 """Run FEDAVG with clustered sampling"""
+if (sampling == "ours") and (
+    not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+):
+
+    from py_func.FedProx import FedProx_stratified_sampling
+
+    FedProx_stratified_sampling(
+        sampling,
+        model_0,
+        n_sampled,
+        list_dls_train,
+        list_dls_test,
+        n_iter,
+        n_SGD,
+        lr,
+        file_name,
+        sim_type,
+        0,
+        decay,
+        meas_perf_period,
+        mu,
+    )
+
+
 if (sampling == "clustered_1" or sampling == "clustered_2") and (
     not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
 ):

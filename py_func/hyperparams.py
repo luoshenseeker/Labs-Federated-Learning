@@ -8,14 +8,14 @@ def get_hyperparams(dataset, n_SGD):
 
     batch_size = 50
 
-    if dataset == "MNIST_iid":
-        n_iter = 600
-
-    elif dataset == "MNIST_shard":
-        n_iter = 600
+    if dataset[:5] == "MNIST":
+        n_iter = 200
 
     elif dataset[:5] == "CIFAR":
-        n_iter = 1000
+        n_iter = 800
+
+    elif dataset[:6] == "FMNIST":
+        n_iter = 200
 
     if dataset[:5] == "CIFAR":
 
@@ -41,7 +41,8 @@ def get_hyperparams(dataset, n_SGD):
 
         metric_period = 2
 
-    return n_iter, batch_size, metric_period
+    # return n_iter, batch_size, metric_period
+    return n_iter, batch_size, 1
 
 
 def get_file_name(
@@ -65,7 +66,7 @@ def get_file_name(
         + f"_B{batch_size}_d{decay}_p{p}_m{meas_perf_period}_{seed}"
     )
     if mu != 0.0:
-        file_name += f"_{mu}"
+        file_name += f"_mu{mu}"
     return file_name
 
 

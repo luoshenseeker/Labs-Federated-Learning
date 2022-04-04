@@ -7,6 +7,8 @@ from itertools import product
 from scipy.cluster.hierarchy import fcluster
 from copy import deepcopy
 
+import config
+
 
 def get_clusters_with_alg1(n_sampled: int, weights: np.array):
     "Algorithm 1"
@@ -78,24 +80,33 @@ def get_gradients(sampling, global_m, local_models):
 
     local_model_params = []
     for model in local_models:
-        local_model_params += [
-            [tens.detach().numpy() for tens in list(model.parameters())]
-        ]
-
-    global_model_params = [
-        tens.detach().numpy() for tens in list(global_m.parameters())
-    ]
+        if config.USE_GPU:
+            local_model_params += [
+                [tens.detach().cpu().numpy() for tens in list(model.parameters())]
+            ]
+            global_model_params = [
+                tens.detach().cpu().numpy() for tens in list(global_m.parameters())
+            ]
+        else:
+            local_model_params += [
+                [tens.detach().numpy() for tens in list(model.parameters())]
+            ]
+            global_model_params = [
+                tens.detach().numpy() for tens in list(global_m.parameters())
+            ]
 
     local_model_grads = []
     for local_params in local_model_params:
         local_model_grads += [
             [
                 local_weights - global_weights
+                # local_weights for local_weights in local_params
                 for local_weights, global_weights in zip(
                     local_params, global_model_params
                 )
             ]
         ]
+
 
     return local_model_grads
 

@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import config
+
 
 class NN(nn.Module):
     def __init__(self, layer_1, layer_2):
@@ -18,7 +20,43 @@ class NN(nn.Module):
         return x
 
 
-# class CNN_CIFAR(torch.nn.Module):
+class CNN_FMNIST_dropout(nn.Module):
+    def __init__(self):
+        super(CNN_FMNIST_dropout, self).__init__()
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=5, padding=2),
+            nn.BatchNorm2d(16),
+            nn.ReLU())  # 16, 28, 28
+        self.pool1 = nn.MaxPool2d(2)  # 16, 14, 14
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(16, 32, kernel_size=3),
+            nn.BatchNorm2d(32),
+            nn.ReLU())  # 32, 12, 12
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(32, 64, kernel_size=3),
+            nn.BatchNorm2d(64),
+            nn.ReLU())  # 64, 10, 10
+        self.pool2 = nn.MaxPool2d(2)  # 64, 5, 5
+        self.fc = nn.Linear(5 * 5 * 64, 10)
+
+    def forward(self, x):
+        out = self.layer1(x)
+        # print(out.shape)
+        out = self.pool1(out)
+        # print(out.shape)
+        out = self.layer2(out)
+        # print(out.shape)
+        out = self.layer3(out)
+        # print(out.shape)
+        out = self.pool2(out)
+        # print(out.shape)
+        out = out.view(out.size(0), -1)
+        # print(out.shape)
+        out = self.fc(out)
+        return out
+
+
+    # class CNN_CIFAR(torch.nn.Module):
 #   """Model Used by the paper introducing FedAvg"""
 #   def __init__(self):
 #        super(CNN_CIFAR, self).__init__()
@@ -88,11 +126,15 @@ def load_model(dataset, seed):
 
     torch.manual_seed(seed)
 
-    if dataset == "MNIST_shard" or dataset == "MNIST_iid":
+    if dataset[:5] == "MNIST":
+        # 解决UnboundLocalError: local variable 'model' referenced before assignment
         model = NN(50, 10)
 
     elif dataset[:7] == "CIFAR10":
         #        model = CNN_CIFAR()
         model = CNN_CIFAR_dropout()
 
-    return model
+    elif dataset[:6] == "FMNIST":
+        model = CNN_FMNIST_dropout()
+
+    return model.cuda() if config.USE_GPU else model

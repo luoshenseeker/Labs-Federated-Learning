@@ -94,5 +94,5 @@ def distribution_samples(list_alpha, n_classes, n_clients):
         bbox_transform=fig.transFigure,
         title=r"$\bf{Classes}$",
     )
-
-    plt.savefig("plots/distribution_samples_CIFAR.pdf", bbox_inches="tight")
+    fig.show()
+    plt.savefig("distribution_samples_CIFAR.pdf", bbox_inches="tight")
