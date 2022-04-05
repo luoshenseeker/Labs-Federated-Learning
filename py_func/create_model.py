@@ -20,6 +20,16 @@ class NN(nn.Module):
         return x
 
 
+class LogisticRegression(torch.nn.Module):
+    def __init__(self, input_dim=28 * 28, output_dim=10):
+        super(LogisticRegression, self).__init__()
+        self.linear = torch.nn.Linear(input_dim, output_dim)
+
+    def forward(self, x):
+        outputs = self.linear(x)
+        return outputs
+
+
 class CNN_FMNIST_dropout(nn.Module):
     def __init__(self):
         super(CNN_FMNIST_dropout, self).__init__()
@@ -126,7 +136,11 @@ def load_model(dataset, seed):
 
     torch.manual_seed(seed)
 
-    if dataset[:5] == "MNIST":
+    if dataset[:7] == "MNISTLR":
+
+        model = LogisticRegression()
+
+    elif dataset[:5] == "MNIST":
         # 解决UnboundLocalError: local variable 'model' referenced before assignment
         model = NN(50, 10)
 
