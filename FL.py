@@ -5,6 +5,7 @@ import os
 import pickle
 import time
 
+start_time = time.time()
 
 """UPLOADING THE DATASETS"""
 import sys
@@ -221,3 +222,6 @@ if sampling == "FedAvg" and (
 
 
 print("EXPERIMENT IS FINISHED")
+print("Paras: " + sys.argv[1:])
+print("start at: " + time.asctime(time.localtime(start_time)))
+print("Finish at " + time.asctime(time.localtime(time.time())))
