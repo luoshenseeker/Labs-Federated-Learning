@@ -5,7 +5,7 @@ DATASET_NAME = 'MNIST_iid'  # Unbalanced, alpha=10.0, Balanced→bbal
 # assert DATASET_NAME in ['ml-1m', 'pinterest-20']
 
 # paths
-ROOT_PATH = '/data/user/sgy/FL_Sampling/'
+ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
 
 # train_rating = main_path + '{}.train.rating'.format(dataset)
 # test_rating = main_path + '{}.test.rating'.format(dataset)
