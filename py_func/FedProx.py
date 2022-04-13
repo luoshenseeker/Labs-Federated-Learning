@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.optim import Optimizer
 
 import numpy as np
 from copy import deepcopy
@@ -801,6 +802,153 @@ def FedProx_sampling_target(
 
 
 def FedProx_FedAvg_sampling(
+    model,
+    n_sampled,
+    training_sets: list,
+    testing_sets: list,
+    n_iter: int,
+    n_SGD: int,
+    lr,
+    file_name: str,
+    decay=1,
+    metric_period=1,
+    mu=0,
+):
+    """all the clients are considered in this implementation of FedProx
+    Parameters:
+        - `model`: common structure used by the clients and the server
+        - `training_sets`: list of the training sets. At each index is the
+            trainign set of client "index"
+        - `n_iter`: number of iterations the server will run
+        - `testing_set`: list of the testing sets. If [], then the testing
+            accuracy is not computed
+        - `mu`: regularixation term for FedProx. mu=0 for FedAvg
+        - `epochs`: number of epochs each client is running
+        - `lr`: learning rate of the optimizer
+        - `decay`: to change the learning rate at each iteration
+
+    returns :
+        - `model`: the final global model
+    """
+
+    loss_f = loss_classifier
+
+    K = len(training_sets)  # number of clients
+    n_samples = np.array([len(db.dataset) for db in training_sets])
+    weights = n_samples / np.sum(n_samples)
+    print("Clients' weights:", weights)
+
+    loss_hist = np.zeros((n_iter + 1, K))
+    acc_hist = np.zeros((n_iter + 1, K))
+
+    for k, dl in enumerate(training_sets):
+
+        loss_hist[0, k] = float(loss_dataset(model, dl, loss_f).detach())
+        acc_hist[0, k] = accuracy_dataset(model, dl)
+
+    # LOSS AND ACCURACY OF THE INITIAL MODEL
+    server_loss = np.dot(weights, loss_hist[0])
+    server_acc = np.dot(weights, acc_hist[0])
+    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+
+    sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
+
+    for i in range(n_iter):
+
+        clients_params = []
+
+        np.random.seed(i)
+        sampled_clients = random.sample([x for x in range(K)], n_sampled)
+        # print("sampled clients", sampled_clients)
+
+        for k in sampled_clients:
+
+            local_model = deepcopy(model)
+            local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
+
+            local_learning(
+                local_model,
+                mu,
+                local_optimizer,
+                training_sets[k],
+                n_SGD,
+                loss_f,
+            )
+
+            # GET THE PARAMETER TENSORS OF THE MODEL
+            list_params = list(local_model.parameters())
+            list_params = [tens_param.detach() for tens_param in list_params]
+            clients_params.append(list_params)
+
+            sampled_clients_hist[i, k] = 1
+
+        # CREATE THE NEW GLOBAL MODEL
+        model = FedAvg_agregation_process_for_FA_sampling(
+            deepcopy(model),
+            clients_params,
+            weights=[weights[client] for client in sampled_clients],
+        )
+
+        if i % metric_period == 0:
+            # COMPUTE THE LOSS/ACCURACY OF THE DIFFERENT CLIENTS WITH THE NEW MODEL
+            for k, dl in enumerate(training_sets):
+                loss_hist[i + 1, k] = float(
+                    loss_dataset(model, dl, loss_f).detach()
+                )
+
+            for k, dl in enumerate(testing_sets):
+                acc_hist[i + 1, k] = accuracy_dataset(model, dl)
+
+            server_loss = np.dot(weights, loss_hist[i + 1])
+            server_acc = np.dot(weights, acc_hist[i + 1])
+
+            print(
+                f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+            )
+
+        # DECREASING THE LEARNING RATE AT EACH SERVER ITERATION
+        lr *= decay
+
+    # SAVE THE DIFFERENT TRAINING HISTORY
+    #    save_pkl(models_hist, "local_model_history", file_name)
+    #    save_pkl(server_hist, "server_history", file_name)
+    save_pkl(loss_hist, "loss", file_name)
+    save_pkl(acc_hist, "acc", file_name)
+    save_pkl(sampled_clients_hist, "sampled_clients", file_name)
+
+    torch.save(
+        model.state_dict(), f"saved_exp_info/final_model/{file_name}.pth"
+    )
+
+    return model, loss_hist, acc_hist
+
+class SCAFFOLDOptimizer(Optimizer):
+    def __init__(self, params, lr, weight_decay):
+        defaults = dict(lr=lr, weight_decay=weight_decay)
+        super(SCAFFOLDOptimizer, self).__init__(params, defaults)
+        pass
+
+    def step(self, server_controls, client_controls, closure=None):
+        loss = None
+        if closure is not None:
+            loss = closure
+
+        for group, c, ci in zip(self.param_groups, server_controls, client_controls):
+            p = group['params'][0]
+            if p.grad is None:
+                continue
+            d_p = p.grad.data + c.data - ci.data
+            p.data = p.data - d_p.data * group['lr']
+        # for group in self.param_groups:
+        #     for p, c, ci in zip(group['params'], server_controls, client_controls):
+        #         if p.grad is None:
+        #             continue
+        #         d_p = p.grad.data + c.data - ci.data
+        #         p.data = p.data - d_p.data * group['lr']
+        return loss
+
+
+def FedProx_SCAFFOLD_sampling(
     model,
     n_sampled,
     training_sets: list,
