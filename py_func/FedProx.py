@@ -162,6 +162,28 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
         batch_loss.backward()
         optimizer.step()
 
+def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epoch: int, loss_f):
+
+    model = deepcopy(inmodel)
+    grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+
+    for _ in range(local_epoch):
+
+        features, labels = next(iter(train_data))
+
+        features = get_variable(features)
+        labels = get_variable(labels)
+
+        optimizer.zero_grad()
+
+        predictions = model(features)
+
+        batch_loss = loss_f(predictions, labels)
+        batch_loss += mu / 2 * difference_models_norm_2(model, model_0)
+
+        batch_loss.backward()
+        optimizer.step()
+
 
 import pickle
 
@@ -934,7 +956,8 @@ class SCAFFOLDOptimizer(Optimizer):
             loss = closure
 
         for group, c, ci in zip(self.param_groups, server_controls, client_controls):
-            p = group['params'][0]
+            # p = group['params'][0]  #  原实现中，对于cifar数据进行了字典包装
+            p = group[0]  # TODO：查看是否需要取列表元素 取第一个是因为params在一个列表里，列表长为1
             if p.grad is None:
                 continue
             d_p = p.grad.data + c.data - ci.data
@@ -948,7 +971,7 @@ class SCAFFOLDOptimizer(Optimizer):
         return loss
 
 
-def FedProx_SCAFFOLD_sampling(
+def FedProx_SCAFFOLD_sampling_random(
     model,
     n_sampled,
     training_sets: list,
@@ -980,6 +1003,8 @@ def FedProx_SCAFFOLD_sampling(
 
     loss_f = loss_classifier
 
+    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+
     K = len(training_sets)  # number of clients
     n_samples = np.array([len(db.dataset) for db in training_sets])
     weights = n_samples / np.sum(n_samples)
@@ -1005,13 +1030,14 @@ def FedProx_SCAFFOLD_sampling(
         clients_params = []
 
         np.random.seed(i)
-        sampled_clients = random.sample([x for x in range(K)], n_sampled)
-        # print("sampled clients", sampled_clients)
+        sampled_clients = np.random.choice(
+            K, size=n_sampled, replace=True, p=weights
+        )
 
         for k in sampled_clients:
 
             local_model = deepcopy(model)
-            local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
+            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr)
 
             local_learning(
                 local_model,
@@ -1030,10 +1056,10 @@ def FedProx_SCAFFOLD_sampling(
             sampled_clients_hist[i, k] = 1
 
         # CREATE THE NEW GLOBAL MODEL
-        model = FedAvg_agregation_process_for_FA_sampling(
+        model = FedAvg_agregation_process(
             deepcopy(model),
             clients_params,
-            weights=[weights[client] for client in sampled_clients],
+            weights=[1 / n_sampled] * n_sampled
         )
 
         if i % metric_period == 0:
