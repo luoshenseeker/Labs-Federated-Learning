@@ -213,7 +213,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="CIFAR",
+    parser.add_argument("--dataset", type=str, default="MNIST",
                         choices=["CIFAR", "MNIST", "FMNIST"])
     parser.add_argument("--sampling", type=str, default="random",
                         choices=["random", "ours", "important", "cluster"])

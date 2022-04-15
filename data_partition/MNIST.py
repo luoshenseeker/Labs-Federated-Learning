@@ -363,12 +363,20 @@ def get_MNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_dat
         n_clients = 100
         samples_train, samples_test = 600, 100
 
-        mnist_trainset = datasets.MNIST(
-            root=DATASET_FOLDER,
-            train=True,
-            download=True,
-            transform=transforms.ToTensor(),
-        )
+        try:
+            mnist_trainset = datasets.MNIST(
+                root=DATASET_FOLDER,
+                train=True,
+                download=False,
+                transform=transforms.ToTensor(),
+            )
+        except:
+            mnist_trainset = datasets.MNIST(
+                root=DATASET_FOLDER,
+                train=True,
+                download=True,
+                transform=transforms.ToTensor(),
+            )
         mnist_train_split = torch.utils.data.random_split(
             mnist_trainset, [samples_train] * n_clients
         )
@@ -377,12 +385,20 @@ def get_MNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_dat
             for ds in mnist_train_split
         ]
 
-        mnist_testset = datasets.MNIST(
-            root=DATASET_FOLDER,
-            train=False,
-            download=True,
-            transform=transforms.ToTensor(),
-        )
+        try:
+            mnist_testset = datasets.MNIST(
+                root=DATASET_FOLDER,
+                train=False,
+                download=False,
+                transform=transforms.ToTensor(),
+            )
+        except:
+            mnist_testset = datasets.MNIST(
+                root=DATASET_FOLDER,
+                train=False,
+                download=True,
+                transform=transforms.ToTensor(),
+            )
         mnist_test_split = torch.utils.data.random_split(
             mnist_testset, [samples_test] * n_clients
         )
