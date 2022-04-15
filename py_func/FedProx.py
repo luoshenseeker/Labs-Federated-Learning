@@ -162,10 +162,22 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
         batch_loss.backward()
         optimizer.step()
 
-def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epoch: int, loss_f):
-
+def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epoch: int, loss_f, trainloaderfull, server_controls, client_controls, delta_client_controls):
     model = deepcopy(inmodel)
     grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+
+    # get grads
+    optimizer.zero_grad()
+    for x, y in trainloaderfull:
+        output = model(x)
+        loss = loss_f(output, y)
+        loss.backward()
+    for param, clone_param in zip(model.parameters(), grads):
+        clone_param.data = param.data.clone()
+        if(param.grad != None):
+            if(clone_param.grad == None):
+                clone_param.grad = torch.zeros_like(param.grad)
+            clone_param.grad.data = param.grad.data.clone()
 
     for _ in range(local_epoch):
 
@@ -179,7 +191,7 @@ def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epo
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(model, model_0)
+        batch_loss += mu / 2 * difference_models_norm_2(inmodel, model)
 
         batch_loss.backward()
         optimizer.step()
@@ -976,6 +988,8 @@ def FedProx_SCAFFOLD_sampling_random(
     n_sampled,
     training_sets: list,
     testing_sets: list,
+    training_sets_full,
+    testing_sets_full,
     n_iter: int,
     n_SGD: int,
     lr,
@@ -1003,9 +1017,13 @@ def FedProx_SCAFFOLD_sampling_random(
 
     loss_f = loss_classifier
 
-    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]  # init server control
 
     K = len(training_sets)  # number of clients
+    controls_group = [deepcopy(server_controls) for i in range(K)]             # init clients control and related vars needed later
+    # server_controls = [deepcopy(server_controls) for i in range(K)]
+    delta_controls_group = [deepcopy(server_controls) for i in range(K)]
+
     n_samples = np.array([len(db.dataset) for db in training_sets])
     weights = n_samples / np.sum(n_samples)
     print("Clients' weights:", weights)
@@ -1039,13 +1057,17 @@ def FedProx_SCAFFOLD_sampling_random(
             local_model = deepcopy(model)
             local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr)
 
-            local_learning(
+            local_learning_scaffold(
                 local_model,
                 mu,
                 local_optimizer,
                 training_sets[k],
                 n_SGD,
                 loss_f,
+                trainloaderfull=training_sets_full,
+                server_controls=server_controls,
+                client_controls=controls_group[k],
+                delta_client_controls=delta_controls_group[k]
             )
 
             # GET THE PARAMETER TENSORS OF THE MODEL
