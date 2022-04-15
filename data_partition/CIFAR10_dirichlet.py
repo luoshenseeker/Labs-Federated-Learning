@@ -360,6 +360,38 @@ def get_CIFAR10_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_d
     """
     folder = DATASET_FOLDER
 
+    try:
+        CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_train_full = torch.utils.data.DataLoader(CIFAR10_train)
+
+    try:
+        CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_test_full = torch.utils.data.DataLoader(CIFAR10_test)
+
     if dataset_name == "CIFAR10_shard":
         n_clients = 100
         samples_train, samples_test = 500, 80
@@ -419,7 +451,7 @@ def get_CIFAR10_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_d
     with open(f"{config.ROOT_PATH}saved_exp_info/len_dbs/{dataset_name}.pkl", "wb") as output:
         pickle.dump(list_len, output)
 
-    return list_dls_train, list_dls_test
+    return list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full
 
 
 def get_num_cnt(dataset_name, list_dls_train):

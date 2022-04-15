@@ -56,11 +56,11 @@ def main(args):
     from data_partition.FMNIST import get_FMNIST_dataloaders
 
     if dataset[:5] == "MNIST":
-        list_dls_train, list_dls_test = get_MNIST_dataloaders(dataset, batch_size)
+        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_MNIST_dataloaders(dataset, batch_size)
     elif dataset[:5] == "CIFAR":
-        list_dls_train, list_dls_test = get_CIFAR10_dataloaders(dataset, batch_size)
+        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_CIFAR10_dataloaders(dataset, batch_size)
     elif dataset[:6] == "FMNIST":
-        list_dls_train, list_dls_test = get_FMNIST_dataloaders(dataset, batch_size)
+        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_FMNIST_dataloaders(dataset, batch_size)
 
     get_num_cnt(dataset, list_dls_train)
 
@@ -213,7 +213,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="MNIST",
+    parser.add_argument("--dataset", type=str, default="CIFAR10",
                         choices=["CIFAR10", "MNIST", "FMNIST"])
     parser.add_argument("--datasetarg", type=str, default="_bbal_10")
     parser.add_argument("--sampling", type=str, default="random",

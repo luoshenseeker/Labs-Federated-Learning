@@ -365,25 +365,43 @@ def get_FMNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_da
     """
 
     print("dataset_name:", dataset_name)
+    try:
+        Fmnist_trainset = datasets.FashionMNIST(
+            root=DATASET_FOLDER,
+            train=True,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+        Fmnist_trainset = datasets.FashionMNIST(
+            root=DATASET_FOLDER,
+            train=True,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_train_full = torch.utils.data.DataLoader(Fmnist_trainset)
+
+    try:
+        Fmnist_testset = datasets.FashionMNIST(
+            root=DATASET_FOLDER,
+            train=False,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+        Fmnist_testset = datasets.FashionMNIST(
+            root=DATASET_FOLDER,
+            train=False,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_test_full = torch.utils.data.DataLoader(Fmnist_testset)
 
     if dataset_name == "FMNIST_iid":
 
         n_clients = 100
         samples_train, samples_test = 600, 100
-        try:
-            Fmnist_trainset = datasets.FashionMNIST(
-                root=DATASET_FOLDER,
-                train=True,
-                download=False,
-                transform=transforms.ToTensor(),
-            )
-        except:
-            Fmnist_trainset = datasets.FashionMNIST(
-                root=DATASET_FOLDER,
-                train=True,
-                download=True,
-                transform=transforms.ToTensor(),
-            )
+
         Fmnist_train_split = torch.utils.data.random_split(
             Fmnist_trainset, [samples_train] * n_clients
         )
@@ -392,20 +410,7 @@ def get_FMNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_da
             for ds in Fmnist_train_split
         ]
 
-        try:
-            Fmnist_testset = datasets.FashionMNIST(
-                root=DATASET_FOLDER,
-                train=False,
-                download=False,
-                transform=transforms.ToTensor(),
-            )
-        except:
-            Fmnist_testset = datasets.FashionMNIST(
-                root=DATASET_FOLDER,
-                train=False,
-                download=True,
-                transform=transforms.ToTensor(),
-            )
+
         Fmnist_test_split = torch.utils.data.random_split(
             Fmnist_testset, [samples_test] * n_clients
         )
@@ -472,7 +477,7 @@ def get_FMNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_da
     with open(f"{config.ROOT_PATH}saved_exp_info/len_dbs/{dataset_name}.pkl", "wb") as output:
         pickle.dump(list_len, output)
 
-    return list_dls_train, list_dls_test
+    return list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full
 
 #
 # list_dls_train, list_dls_test = get_FMNIST_dataloaders("FMNIST_bbal_0.1", 50)

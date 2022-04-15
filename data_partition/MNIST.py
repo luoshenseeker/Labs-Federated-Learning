@@ -363,25 +363,43 @@ def get_MNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_dat
 
     print("dataset_name:", dataset_name)
 
+    try:
+        mnist_trainset = datasets.MNIST(
+            root=DATASET_FOLDER,
+            train=True,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+        mnist_trainset = datasets.MNIST(
+            root=DATASET_FOLDER,
+            train=True,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_train_full = torch.utils.data.DataLoader(mnist_trainset)
+
+    try:
+        mnist_testset = datasets.MNIST(
+            root=DATASET_FOLDER,
+            train=False,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+        mnist_testset = datasets.MNIST(
+            root=DATASET_FOLDER,
+            train=False,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
+    list_dls_test_full = torch.utils.data.DataLoader(mnist_testset)
+
     if dataset_name == "MNIST_iid":
 
         n_clients = 100
         samples_train, samples_test = 600, 100
 
-        try:
-            mnist_trainset = datasets.MNIST(
-                root=DATASET_FOLDER,
-                train=True,
-                download=False,
-                transform=transforms.ToTensor(),
-            )
-        except:
-            mnist_trainset = datasets.MNIST(
-                root=DATASET_FOLDER,
-                train=True,
-                download=True,
-                transform=transforms.ToTensor(),
-            )
         mnist_train_split = torch.utils.data.random_split(
             mnist_trainset, [samples_train] * n_clients
         )
@@ -390,20 +408,6 @@ def get_MNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_dat
             for ds in mnist_train_split
         ]
 
-        try:
-            mnist_testset = datasets.MNIST(
-                root=DATASET_FOLDER,
-                train=False,
-                download=False,
-                transform=transforms.ToTensor(),
-            )
-        except:
-            mnist_testset = datasets.MNIST(
-                root=DATASET_FOLDER,
-                train=False,
-                download=True,
-                transform=transforms.ToTensor(),
-            )
         mnist_test_split = torch.utils.data.random_split(
             mnist_testset, [samples_test] * n_clients
         )
@@ -470,7 +474,7 @@ def get_MNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_dat
     with open(f"{config.ROOT_PATH}saved_exp_info/len_dbs/{dataset_name}.pkl", "wb") as output:
         pickle.dump(list_len, output)
 
-    return list_dls_train, list_dls_test
+    return list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full
 
 #
 # list_dls_train, list_dls_test = get_MNIST_dataloaders("MNIST_bbal_0.1", 50)
