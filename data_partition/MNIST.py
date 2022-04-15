@@ -139,9 +139,14 @@ def clients_set_MNIST_shard(file_name, n_clients, batch_size=100, shuffle=True):
     return list_dl
 
 def create_MNIST_ds_1shard_per_client(n_clients, samples_train, samples_test):
-
-    MNIST_train = datasets.MNIST(root=DATASET_FOLDER, train=True, download=True)
-    MNIST_test = datasets.MNIST(root=DATASET_FOLDER, train=False, download=True)
+    try:
+        MNIST_train = datasets.MNIST(root=DATASET_FOLDER, train=True, download=False)
+    except:
+        MNIST_train = datasets.MNIST(root=DATASET_FOLDER, train=True, download=True)
+    try:
+        MNIST_test = datasets.MNIST(root=DATASET_FOLDER, train=False, download=False)
+    except:
+        MNIST_test = datasets.MNIST(root=DATASET_FOLDER, train=False, download=True)
 
     shards_train, shards_test = [], []
     labels = []

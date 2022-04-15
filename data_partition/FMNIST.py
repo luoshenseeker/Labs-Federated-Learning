@@ -142,9 +142,14 @@ def clients_set_FMNIST_shard(file_name, n_clients, batch_size=100, shuffle=True)
     return list_dl
 
 def create_FMNIST_ds_1shard_per_client(n_clients, samples_train, samples_test):
-
-    FMNIST_train = datasets.FashionMNIST(root=DATASET_FOLDER, train=True, download=True)
-    FMNIST_test = datasets.FashionMNIST(root=DATASET_FOLDER, train=False, download=True)
+    try:
+        FMNIST_train = datasets.FashionMNIST(root=DATASET_FOLDER, train=True, download=False)
+    except:
+        FMNIST_train = datasets.FashionMNIST(root=DATASET_FOLDER, train=True, download=True)
+    try:
+        FMNIST_test = datasets.FashionMNIST(root=DATASET_FOLDER, train=False, download=False)
+    except:
+        FMNIST_test = datasets.FashionMNIST(root=DATASET_FOLDER, train=False, download=True)
 
     shards_train, shards_test = [], []
     labels = []
@@ -365,13 +370,20 @@ def get_FMNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_da
 
         n_clients = 100
         samples_train, samples_test = 600, 100
-
-        Fmnist_trainset = datasets.FashionMNIST(
-            root=DATASET_FOLDER,
-            train=True,
-            download=True,
-            transform=transforms.ToTensor(),
-        )
+        try:
+            Fmnist_trainset = datasets.FashionMNIST(
+                root=DATASET_FOLDER,
+                train=True,
+                download=False,
+                transform=transforms.ToTensor(),
+            )
+        except:
+            Fmnist_trainset = datasets.FashionMNIST(
+                root=DATASET_FOLDER,
+                train=True,
+                download=True,
+                transform=transforms.ToTensor(),
+            )
         Fmnist_train_split = torch.utils.data.random_split(
             Fmnist_trainset, [samples_train] * n_clients
         )
@@ -380,12 +392,20 @@ def get_FMNIST_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_da
             for ds in Fmnist_train_split
         ]
 
-        Fmnist_testset = datasets.FashionMNIST(
-            root=DATASET_FOLDER,
-            train=False,
-            download=True,
-            transform=transforms.ToTensor(),
-        )
+        try:
+            Fmnist_testset = datasets.FashionMNIST(
+                root=DATASET_FOLDER,
+                train=False,
+                download=False,
+                transform=transforms.ToTensor(),
+            )
+        except:
+            Fmnist_testset = datasets.FashionMNIST(
+                root=DATASET_FOLDER,
+                train=False,
+                download=True,
+                transform=transforms.ToTensor(),
+            )
         Fmnist_test_split = torch.utils.data.random_split(
             Fmnist_testset, [samples_test] * n_clients
         )

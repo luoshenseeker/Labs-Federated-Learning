@@ -214,8 +214,8 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="MNIST",
-                        choices=["CIFAR", "MNIST", "FMNIST"])
-    parser.add_argument("--datasetarg", type=str, default="_iid")
+                        choices=["CIFAR10", "MNIST", "FMNIST"])
+    parser.add_argument("--datasetarg", type=str, default="_bbal_10")
     parser.add_argument("--sampling", type=str, default="random",
                         choices=["random", "ours", "important", "cluster"])
     parser.add_argument("--sim_type", type=str, default="any",

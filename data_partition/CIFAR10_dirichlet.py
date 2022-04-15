@@ -107,19 +107,35 @@ def clients_set_CIFAR10_shard(file_name, n_clients, batch_size=100, shuffle=True
     return list_dl
 
 def create_CIFAR10_ds_1shard_per_client(n_clients, samples_train, samples_test):
-    CIFAR10_train = datasets.CIFAR10(
-        root=DATASET_FOLDER,
-        train=True,
-        download=True,
-        # transform=transforms.ToTensor(),
-    )
+    try:
+        CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=False,
+            # transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=True,
+            # transform=transforms.ToTensor(),
+        )
 
-    CIFAR10_test = datasets.CIFAR10(
-        root=DATASET_FOLDER,
-        train=False,
-        download=True,
-        # transform=transforms.ToTensor(),
-    )
+    try:
+        CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=False,
+            # transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=True,
+            # transform=transforms.ToTensor(),
+        )
     shards_train, shards_test = [], []
     labels = []
 
@@ -246,19 +262,35 @@ def create_CIFAR10_dirichlet(
     # print("alpha:", alpha)
     # print("matrix:", matrix)
 
-    CIFAR10_train = datasets.CIFAR10(
-        root=DATASET_FOLDER,
-        train=True,
-        download=True,
-        transform=transforms.ToTensor(),
-    )
+    try:
+        CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_train = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=True,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
 
-    CIFAR10_test = datasets.CIFAR10(
-        root=DATASET_FOLDER,
-        train=False,
-        download=True,
-        transform=transforms.ToTensor(),
-    )
+    try:
+        CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=False,
+            transform=transforms.ToTensor(),
+        )
+    except:
+            CIFAR10_test = datasets.CIFAR10(
+            root=DATASET_FOLDER,
+            train=False,
+            download=True,
+            transform=transforms.ToTensor(),
+        )
 
     file_name_train = f"{dataset_name}_train_{n_clients}.pkl"
     partition_CIFAR10_dataset(
