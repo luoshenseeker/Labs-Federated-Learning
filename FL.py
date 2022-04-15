@@ -215,6 +215,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="MNIST",
                         choices=["CIFAR", "MNIST", "FMNIST"])
+    parser.add_argument("--datasetarg", type=str, default="_iid")
     parser.add_argument("--sampling", type=str, default="random",
                         choices=["random", "ours", "important", "cluster"])
     parser.add_argument("--sim_type", type=str, default="any",
@@ -225,8 +226,8 @@ if __name__ == "__main__":
     parser.add_argument("--decay", type=float, default=1.0)
     parser.add_argument("--p", type=float, default=0.01)
     parser.add_argument("--mu", type=float, default=0)
-    parser.add_argument('-f', '--force', action='force', help="Force to simulate.")
-    parser.add_argument('-v', "--convex", action='convex', help="Convexity of MNIST")
+    parser.add_argument('-f', '--force', dest="force", action='store_true', help="Force to simulate.")
+    parser.add_argument('-v', "--convex", dest='convex', action='store_true', help="Convexity of MNIST")
     # parser.add_argument("--model", type=str, default="cnn", choices=["linear", "mclr", "dnn", "cnn"])
     # parser.add_argument("--batch_size", type=int, default=60)
     # parser.add_argument("--num_glob_iters", type=int, default=5)
@@ -240,4 +241,5 @@ if __name__ == "__main__":
     # parser.add_argument("--pre-coding", type=float, default=False, help="Applies pre-coding")
     # parser.add_argument("--times", type=int, default=1, help="Running time")
     args = parser.parse_args()
+    args.dataset += args.datasetarg
     main(args)
