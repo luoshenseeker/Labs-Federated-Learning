@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+import math
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -162,8 +162,8 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
         batch_loss.backward()
         optimizer.step()
 
-def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epoch: int, loss_f, trainloaderfull, server_controls, client_controls, delta_client_controls):
-    model = deepcopy(inmodel)
+def local_learning_scaffold(server_model, mu: float, optimizer, train_data, local_epoch: int, loss_f, delta_model, trainloaderfull, server_controls, client_controls, delta_client_controls, lr, batch_size):
+    model = deepcopy(server_model)
     grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
 
     # get grads
@@ -181,7 +181,7 @@ def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epo
 
     for _ in range(local_epoch):
 
-        features, labels = next(iter(train_data))
+        features, labels = next(iter(train_data))   # 单次训练只训练一个batch
 
         features = get_variable(features)
         labels = get_variable(labels)
@@ -191,10 +191,34 @@ def local_learning_scaffold(inmodel, mu: float, optimizer, train_data, local_epo
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(inmodel, model)
+        batch_loss += mu / 2 * difference_models_norm_2(server_model, model)
 
         batch_loss.backward()
-        optimizer.step()
+        optimizer.step(server_controls, client_controls)
+
+        # get mode difference
+        model_bak = deepcopy(model)
+        server_model_bak = deepcopy(server_model)
+        for local, server, delta in zip(model_bak.parameters(), server_model_bak.parameters(), delta_model):
+            delta.data = local.data.detach() - server.data.detach()
+
+        # get client new controls
+        new_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+        opt = 2
+        if opt == 1:
+            for new_control, grad in zip(new_controls, grads):
+                new_control.data = grad.data
+        if opt == 2:
+            train_samples = len(train_data)
+            for server_control, control, new_control, delta in zip(server_controls, client_controls, new_controls, delta_model):
+                a = 1 / (math.ceil(train_samples / batch_size) * lr)
+                new_control.data = control.data - server_control.data - delta.data * a
+
+        # get controls difference
+        for control, new_control, delta in zip(client_controls, new_controls, delta_client_controls):
+            delta.data = new_control.data - control.data
+            control.data = new_control.data
+                 
 
 
 import pickle
@@ -994,6 +1018,7 @@ def FedProx_SCAFFOLD_sampling_random(
     n_SGD: int,
     lr,
     file_name: str,
+    batch_size: int,
     decay=1,
     metric_period=1,
     mu=0,
@@ -1023,6 +1048,7 @@ def FedProx_SCAFFOLD_sampling_random(
     controls_group = [deepcopy(server_controls) for i in range(K)]             # init clients control and related vars needed later
     # server_controls = [deepcopy(server_controls) for i in range(K)]
     delta_controls_group = [deepcopy(server_controls) for i in range(K)]
+    delta_model_group = [deepcopy(server_controls) for i in range(K)]
 
     n_samples = np.array([len(db.dataset) for db in training_sets])
     weights = n_samples / np.sum(n_samples)
@@ -1064,10 +1090,13 @@ def FedProx_SCAFFOLD_sampling_random(
                 training_sets[k],
                 n_SGD,
                 loss_f,
+                delta_model=delta_model_group[K],
                 trainloaderfull=training_sets_full,
                 server_controls=server_controls,
                 client_controls=controls_group[k],
-                delta_client_controls=delta_controls_group[k]
+                delta_client_controls=delta_controls_group[k],
+                lr=lr,
+                batch_size=batch_size
             )
 
             # GET THE PARAMETER TENSORS OF THE MODEL
