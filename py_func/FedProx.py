@@ -1131,8 +1131,10 @@ def FedProx_SCAFFOLD_sampling_random(
             server_controls=server_controls,
             delta_model_group=delta_model_group,
             delta_controls_group=delta_controls_group,
-            clients_models_hist=clients_params
-            # weights=[1 / n_sampled] * n_sampled
+            clients_models_hist=clients_params,
+            tot_users_num=K,
+            total_samples=total_samples,
+            weights=[1 / n_sampled] * n_sampled
         )
 
         if i % metric_period == 0:
