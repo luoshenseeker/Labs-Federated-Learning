@@ -132,17 +132,16 @@ class CNN_CIFAR_dropout(torch.nn.Module):
         return x
 
 
-def load_model(dataset, seed):
+def load_model(dataset, seed, convex):
 
     torch.manual_seed(seed)
 
-    if dataset[:7] == "MNISTLR":
-
-        model = LogisticRegression()
-
-    elif dataset[:5] == "MNIST":
-        # 解决UnboundLocalError: local variable 'model' referenced before assignment
-        model = NN(50, 10)
+    if dataset[:5] == "MNIST":
+        if convex:
+            model = LogisticRegression()
+        else:
+            # 解决UnboundLocalError: local variable 'model' referenced before assignment
+            model = NN(50, 10)
 
     elif dataset[:7] == "CIFAR10":
         #        model = CNN_CIFAR()

@@ -82,7 +82,7 @@ def main(args):
     """LOAD THE INTIAL GLOBAL MODEL"""
     from py_func.create_model import load_model
 
-    model_0 = load_model(dataset, seed)
+    model_0 = load_model(dataset, seed, convex)
     print(model_0)
 
     if update_method == "AVG":
