@@ -1009,8 +1009,8 @@ class SCAFFOLDOptimizer(Optimizer):
             loss = closure
 
         for group, c, ci in zip(self.param_groups, server_controls, client_controls):
-            # p = group['params'][0]  #  原实现中，对于cifar数据进行了字典包装
-            p = group[0]  # TODO：查看是否需要取列表元素 取第一个是因为params在一个列表里，列表长为1
+            p = group['params'][0]  #  原实现中，对于cifar数据进行了字典包装
+            # p = group[0]  # TODO：查看是否需要取列表元素 取第一个是因为params在一个列表里，列表长为1
             if p.grad is None:
                 continue
             d_p = p.grad.data + c.data - ci.data
