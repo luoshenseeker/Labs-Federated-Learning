@@ -184,6 +184,8 @@ def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch
     # get grads
     optimizer.zero_grad()
     for x, y in trainloaderfull:
+        x = get_variable(x)
+        y = get_variable(y)
         output = model(x)
         loss = loss_f(output, y)
         loss.backward()
@@ -1097,7 +1099,7 @@ def FedProx_SCAFFOLD_sampling_random(
         for k in sampled_clients:
 
             local_model = deepcopy(model)
-            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr)
+            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=decay)
             total_samples += len(training_sets[k].dataset)
 
             local_learning_scaffold(
