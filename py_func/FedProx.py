@@ -70,6 +70,21 @@ def FedAvg_agregation_process_for_FA_sampling(
 
     return new_model
 
+def Fed_SCAFFOLD_aggregation_process(
+    model, server_controls, delta_model_group, delta_controls_group, clients_models_hist: list, weights: list, total_samples, tot_users_num: int
+):
+    new_model = deepcopy(model)
+    assert(len(clients_models_hist) > 0)
+    num_of_selected_users = len(clients_models_hist)
+    num_of_users = tot_users_num
+    for delta_controls, delta_model in zip(delta_controls_group, delta_model_group):
+        for param, control, del_control, del_model in zip(new_model.parameters(), server_controls,
+                                                            delta_controls, delta_model):
+            # param.data = param.data + del_model.data * num_of_samples / total_samples / num_of_selected_users
+            param.data = param.data + del_model.data / num_of_selected_users
+            control.data = control.data + del_control.data / num_of_users
+    return new_model
+
 
 def accuracy_dataset(model, dataset):
     """Compute the accuracy of `model` on `test_data`"""
@@ -162,8 +177,8 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
         batch_loss.backward()
         optimizer.step()
 
-def local_learning_scaffold(server_model, mu: float, optimizer, train_data, local_epoch: int, loss_f, delta_model, trainloaderfull, server_controls, client_controls, delta_client_controls, lr, batch_size):
-    model = deepcopy(server_model)
+def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch: int, loss_f, delta_model, trainloaderfull, server_controls, client_controls, delta_client_controls, lr, batch_size):
+    server_model = deepcopy(model)
     grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
 
     # get grads
@@ -191,7 +206,7 @@ def local_learning_scaffold(server_model, mu: float, optimizer, train_data, loca
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(server_model, model)
+        batch_loss += mu / 2 * difference_models_norm_2(model, model)
 
         batch_loss.backward()
         optimizer.step(server_controls, client_controls)
@@ -1072,6 +1087,7 @@ def FedProx_SCAFFOLD_sampling_random(
     for i in range(n_iter):
 
         clients_params = []
+        total_samples = 0
 
         np.random.seed(i)
         sampled_clients = np.random.choice(
@@ -1082,6 +1098,7 @@ def FedProx_SCAFFOLD_sampling_random(
 
             local_model = deepcopy(model)
             local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr)
+            total_samples += len(training_sets[k].dataset)
 
             local_learning_scaffold(
                 local_model,
@@ -1090,7 +1107,7 @@ def FedProx_SCAFFOLD_sampling_random(
                 training_sets[k],
                 n_SGD,
                 loss_f,
-                delta_model=delta_model_group[K],
+                delta_model=delta_model_group[k],
                 trainloaderfull=training_sets_full,
                 server_controls=server_controls,
                 client_controls=controls_group[k],
@@ -1107,10 +1124,13 @@ def FedProx_SCAFFOLD_sampling_random(
             sampled_clients_hist[i, k] = 1
 
         # CREATE THE NEW GLOBAL MODEL
-        model = FedAvg_agregation_process(
-            deepcopy(model),
-            clients_params,
-            weights=[1 / n_sampled] * n_sampled
+        model = Fed_SCAFFOLD_aggregation_process(
+            model=model,
+            server_controls=server_controls,
+            delta_model_group=delta_model_group,
+            delta_controls_group=delta_controls_group,
+            clients_models_hist=clients_params
+            # weights=[1 / n_sampled] * n_sampled
         )
 
         if i % metric_period == 0:

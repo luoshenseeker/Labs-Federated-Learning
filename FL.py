@@ -29,6 +29,7 @@ def main(args):
     p = args.p
     force = args.force
     mu = args.mu
+    update_method = args.update_method
 
     NEWLINE = '\n'
 
@@ -80,130 +81,262 @@ def main(args):
     model_0 = load_model(dataset, seed)
     print(model_0)
 
-    """FEDAVG with random sampling"""
-    if sampling == "random" and (
-            not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
-    ):
-        from py_func.FedProx import FedProx_sampling_random
+    if update_method == "AVG":
+        """FEDAVG with random sampling"""
 
-        FedProx_sampling_random(
-            model_0,
-            n_sampled,
-            list_dls_train,
-            list_dls_test,
-            n_iter,
-            n_SGD,
-            lr,
-            file_name,
-            decay,
-            meas_perf_period,
-            mu,
-        )
+        if sampling == "random" and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_sampling_random
 
-        # from py_func.FedProx import FedProx_stratified_sampling
-        #
-        # FedProx_stratified_sampling(
-        #     sampling,
-        #     model_0,
-        #     n_sampled,
-        #     list_dls_train,
-        #     list_dls_test,
-        #     n_iter,
-        #     n_SGD,
-        #     lr,
-        #     file_name,
-        #     sim_type,
-        #     0,
-        #     decay,
-        #     meas_perf_period,
-        #     mu,
-        # )
+            FedProx_sampling_random(
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                decay,
+                meas_perf_period,
+                mu,
+            )
 
-    """Run FEDAVG with clustered sampling"""
-    if (sampling == "ours") and (
-            not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
-    ):
-        from py_func.FedProx import FedProx_stratified_sampling
+            # from py_func.FedProx import FedProx_stratified_sampling
+            #
+            # FedProx_stratified_sampling(
+            #     sampling,
+            #     model_0,
+            #     n_sampled,
+            #     list_dls_train,
+            #     list_dls_test,
+            #     n_iter,
+            #     n_SGD,
+            #     lr,
+            #     file_name,
+            #     sim_type,
+            #     0,
+            #     decay,
+            #     meas_perf_period,
+            #     mu,
+            # )
 
-        FedProx_stratified_sampling(
-            sampling,
-            model_0,
-            n_sampled,
-            list_dls_train,
-            list_dls_test,
-            n_iter,
-            n_SGD,
-            lr,
-            file_name,
-            sim_type,
-            0,
-            decay,
-            meas_perf_period,
-            mu,
-        )
+        """Run FEDAVG with clustered sampling"""
+        if (sampling == "ours") and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_stratified_sampling
 
-    if (sampling == "clustered_1" or sampling == "clustered_2") and (
-            not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
-    ):
-        from py_func.FedProx import FedProx_clustered_sampling
+            FedProx_stratified_sampling(
+                sampling,
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                sim_type,
+                0,
+                decay,
+                meas_perf_period,
+                mu,
+            )
 
-        FedProx_clustered_sampling(
-            sampling,
-            model_0,
-            n_sampled,
-            list_dls_train,
-            list_dls_test,
-            n_iter,
-            n_SGD,
-            lr,
-            file_name,
-            sim_type,
-            0,
-            decay,
-            meas_perf_period,
-            mu,
-        )
+        if (sampling == "clustered_1" or sampling == "clustered_2") and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_clustered_sampling
 
-    """RUN FEDAVG with perfect sampling for MNIST-shard"""
-    if (
-            sampling == "perfect"
-            and dataset == "MNIST_shard"
-            and (not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force)
-    ):
-        from py_func.FedProx import FedProx_sampling_target
+            FedProx_clustered_sampling(
+                sampling,
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                sim_type,
+                0,
+                decay,
+                meas_perf_period,
+                mu,
+            )
 
-        FedProx_sampling_target(
-            model_0,
-            n_sampled,
-            list_dls_train,
-            list_dls_test,
-            n_iter,
-            n_SGD,
-            lr,
-            file_name,
-            decay,
-            mu,
-        )
+        """RUN FEDAVG with perfect sampling for MNIST-shard"""
+        if (
+                sampling == "perfect"
+                and dataset == "MNIST_shard"
+                and (not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force)
+        ):
+            from py_func.FedProx import FedProx_sampling_target
 
-    """RUN FEDAVG with its original sampling scheme sampling clients uniformly"""
-    if sampling == "FedAvg" and (
-            not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
-    ):
-        from py_func.FedProx import FedProx_FedAvg_sampling
+            FedProx_sampling_target(
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                decay,
+                mu,
+            )
 
-        FedProx_FedAvg_sampling(
-            model_0,
-            n_sampled,
-            list_dls_train,
-            list_dls_test,
-            n_iter,
-            n_SGD,
-            lr,
-            file_name,
-            decay,
-            meas_perf_period,
-            mu,
-        )
+        """RUN FEDAVG with its original sampling scheme sampling clients uniformly"""
+        if sampling == "FedAvg" and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_FedAvg_sampling
+
+            FedProx_FedAvg_sampling(
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                decay,
+                meas_perf_period,
+                mu,
+            )
+
+    if update_method == "SCAFFOLD":
+        """FEDSCAFFOLD with random sampling"""
+
+        if sampling == "random" and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_SCAFFOLD_sampling_random
+
+            FedProx_SCAFFOLD_sampling_random(
+                model=model_0,
+                n_sampled=n_sampled,
+                training_sets=list_dls_train,
+                testing_sets=list_dls_test,
+                n_iter=n_iter,
+                n_SGD=n_SGD,
+                lr=lr,
+                file_name=file_name,
+                batch_size=batch_size,
+                decay=decay,
+                metric_period=meas_perf_period,
+                mu=mu,
+                training_sets_full=list_dls_train_full,
+                testing_sets_full=list_dls_test_full
+            )
+
+            # from py_func.FedProx import FedProx_stratified_sampling
+            #
+            # FedProx_stratified_sampling(
+            #     sampling,
+            #     model_0,
+            #     n_sampled,
+            #     list_dls_train,
+            #     list_dls_test,
+            #     n_iter,
+            #     n_SGD,
+            #     lr,
+            #     file_name,
+            #     sim_type,
+            #     0,
+            #     decay,
+            #     meas_perf_period,
+            #     mu,
+            # )
+
+        """Run FEDSCAFFOLD with clustered sampling"""
+        if (sampling == "ours") and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_stratified_sampling
+
+            FedProx_stratified_sampling(
+                sampling,
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                sim_type,
+                0,
+                decay,
+                meas_perf_period,
+                mu,
+            )
+
+        if (sampling == "clustered_1" or sampling == "clustered_2") and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_clustered_sampling
+
+            FedProx_clustered_sampling(
+                sampling,
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                sim_type,
+                0,
+                decay,
+                meas_perf_period,
+                mu,
+            )
+
+        """RUN FEDSCAFFOLD with perfect sampling for MNIST-shard"""
+        if (
+                sampling == "perfect"
+                and dataset == "MNIST_shard"
+                and (not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force)
+        ):
+            from py_func.FedProx import FedProx_sampling_target
+
+            FedProx_sampling_target(
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                decay,
+                mu,
+            )
+
+        """RUN FEDSCAFFOLD with its original sampling scheme sampling clients uniformly"""
+        if sampling == "FedAvg" and (
+                not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
+        ):
+            from py_func.FedProx import FedProx_FedAvg_sampling
+
+            FedProx_FedAvg_sampling(
+                model_0,
+                n_sampled,
+                list_dls_train,
+                list_dls_test,
+                n_iter,
+                n_SGD,
+                lr,
+                file_name,
+                decay,
+                meas_perf_period,
+                mu,
+            )
 
     print("EXPERIMENT IS FINISHED")
     print("Paras: " + sys.argv[1:])
@@ -220,6 +353,8 @@ if __name__ == "__main__":
                         choices=["random", "ours", "important", "cluster"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
+    parser.add_argument("--update_method", type=str, default="AVG",
+                        choices=["SCAFFOLD","AVG"])
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--n_SGD", type=int, default=50)
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Local learning rate")
