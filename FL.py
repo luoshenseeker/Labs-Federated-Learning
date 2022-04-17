@@ -44,6 +44,7 @@ def main(args):
     print("metric_period", meas_perf_period)
     print("regularization term", mu)
     print("GPU:", config.USE_GPU)
+    print("FL_update method:", update_method)
 
     """NAME UNDER WHICH THE EXPERIMENT'S VARIABLES WILL BE SAVED"""
     from py_func.hyperparams import get_file_name
