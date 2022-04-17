@@ -354,7 +354,7 @@ if __name__ == "__main__":
                         choices=["CIFAR10", "MNIST", "FMNIST"])
     parser.add_argument("--datasetarg", type=str, default="_bbal_10")
     parser.add_argument("--sampling", type=str, default="random",
-                        choices=["random", "ours", "important", "cluster"])
+                        choices=["random", "ours", "important", "clustered_1", "clustered_2"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
     parser.add_argument("--update_method", type=str, default="SCAFFOLD",

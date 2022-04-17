@@ -46,6 +46,8 @@ def plot_fig_alg2(
     p: float,
     mu: float,
     iter_max=200,
+    update_method='AVG',
+    convex=True
 ):
 
     with open(f"./saved_exp_info/len_dbs/{dataset}.pkl", "rb") as output:
@@ -64,6 +66,8 @@ def plot_fig_alg2(
         p,
         mu,
         names_legend=names_legend,
+        convex=convex,
+        update_method=update_method
     )
     loss_hists, _ = get_acc_loss(
         dataset,
@@ -76,6 +80,8 @@ def plot_fig_alg2(
         p,
         mu,
         names_legend=names_legend,
+        convex=convex,
+        update_method=update_method
     )
     sampled_clients, _ = get_acc_loss(
         dataset,
@@ -88,6 +94,8 @@ def plot_fig_alg2(
         p,
         mu,
         names_legend=names_legend,
+        convex=convex,
+        update_method=update_method
     )
 
     print(legend)
