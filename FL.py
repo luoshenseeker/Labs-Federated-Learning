@@ -5,6 +5,7 @@ import os
 import pickle
 import time
 import argparse
+import config
 
 
 def main(args):
@@ -42,6 +43,7 @@ def main(args):
     print("percentage of sampled clients", p)
     print("metric_period", meas_perf_period)
     print("regularization term", mu)
+    print("GPU:", config.USE_GPU)
 
     """NAME UNDER WHICH THE EXPERIMENT'S VARIABLES WILL BE SAVED"""
     from py_func.hyperparams import get_file_name
