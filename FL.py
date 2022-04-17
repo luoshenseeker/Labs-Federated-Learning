@@ -343,9 +343,9 @@ def main(args):
             )
 
     print("EXPERIMENT IS FINISHED")
-    print("Paras: " + sys.argv[1:])
+    print("Paras: ", args)
     print("start at: " + time.asctime(time.localtime(start_time)))
-    print("Finish at " + time.asctime(time.localtime(time.time())))
+    print("Finish at: " + time.asctime(time.localtime(time.time())))
 
 
 if __name__ == "__main__":
