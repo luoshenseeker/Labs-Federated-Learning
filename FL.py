@@ -31,6 +31,7 @@ def main(args):
     force = args.force
     mu = args.mu
     update_method = args.update_method
+    convex = args.convex
 
     NEWLINE = '\n'
 
@@ -50,7 +51,7 @@ def main(args):
     from py_func.hyperparams import get_file_name
 
     file_name = get_file_name(
-        dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu
+        dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu, update_method, convex
     )
     print(file_name)
 

@@ -55,15 +55,22 @@ def get_file_name(
     decay: float,
     p: float,
     mu: float,
+    update_method: str, 
+    convex: bool
 ):
     """return the file name under which the experiment with these info is saved
     under"""
 
     n_iter, batch_size, meas_perf_period = get_hyperparams(dataset, n_SGD)
 
+    if convex:
+        convex_state = "conv"
+    else:
+        convex_state = "ncon"
+
     file_name = (
         f"{dataset}_{sampling}_{sim_type}_i{n_iter}_N{n_SGD}_lr{lr}"
-        + f"_B{batch_size}_d{decay}_p{p}_m{meas_perf_period}_{seed}"
+        + f"_B{batch_size}_d{decay}_p{p}_m{meas_perf_period}_{seed}_{update_method}_{convex_state}"
     )
     if mu != 0.0:
         file_name += f"_mu{mu}"
