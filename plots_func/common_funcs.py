@@ -16,6 +16,8 @@ def get_acc_loss(
     decay: float,
     p: float,
     mu,
+    convex,
+    update_method,
     sampling_types=[
         "random",
         "clustered_2",
@@ -36,7 +38,7 @@ def get_acc_loss(
 
     def get_one_acc_loss(sampling: str, sim_type: str):
         file_name = get_file_name(
-            dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu
+            dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu, update_method, convex
         )
         print(file_name)
         path = f"saved_exp_info/{metric}/{file_name}.pkl"
@@ -54,8 +56,11 @@ def get_acc_loss(
             hists.append(hist)
             legend.append(name)
 
-        except:
-            pass
+        except FileNotFoundError:
+            file_name = get_file_name(
+                dataset, sampling, sampling_type, seed, n_SGD, lr, decay, p, mu, update_method, convex
+            )
+            print(file_name + " doesn't exist")
 
     return hists, legend
 
