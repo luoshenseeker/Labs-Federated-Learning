@@ -356,7 +356,7 @@ if __name__ == "__main__":
                         choices=["random", "ours", "important", "cluster"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
-    parser.add_argument("--update_method", type=str, default="AVG",
+    parser.add_argument("--update_method", type=str, default="SCAFFOLD",
                         choices=["SCAFFOLD","AVG"])
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--n_SGD", type=int, default=50)
