@@ -179,22 +179,23 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
 
 def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch: int, loss_f, delta_model, trainloaderfull, server_controls, client_controls, delta_client_controls, lr, batch_size):
     server_model = deepcopy(model)
-    grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
-
-    # get grads
-    optimizer.zero_grad()
-    for x, y in trainloaderfull:
-        x = get_variable(x)
-        y = get_variable(y)
-        output = model(x)
-        loss = loss_f(output, y)
-        loss.backward()
-    for param, clone_param in zip(model.parameters(), grads):
-        clone_param.data = param.data.clone()
-        if(param.grad != None):
-            if(clone_param.grad == None):
-                clone_param.grad = torch.zeros_like(param.grad)
-            clone_param.grad.data = param.grad.data.clone()
+    opt = 2
+    if opt == 1:
+        grads = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
+        # get grads
+        optimizer.zero_grad()
+        for x, y in trainloaderfull:
+            x = get_variable(x)
+            y = get_variable(y)
+            output = model(x)
+            loss = loss_f(output, y)
+            loss.backward()
+        for param, clone_param in zip(model.parameters(), grads):
+            clone_param.data = param.data.clone()
+            if(param.grad != None):
+                if(clone_param.grad == None):
+                    clone_param.grad = torch.zeros_like(param.grad)
+                clone_param.grad.data = param.grad.data.clone()
 
     for _ in range(local_epoch):
 
@@ -221,7 +222,6 @@ def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch
 
         # get client new controls
         new_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]
-        opt = 2
         if opt == 1:
             for new_control, grad in zip(new_controls, grads):
                 new_control.data = grad.data
