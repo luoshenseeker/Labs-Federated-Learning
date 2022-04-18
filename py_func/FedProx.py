@@ -209,7 +209,7 @@ def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(model, model)
+        batch_loss += mu / 2 * difference_models_norm_2(model, server_model)
 
         batch_loss.backward()
         optimizer.step(server_controls, client_controls)
@@ -375,6 +375,7 @@ def FedProx_sampling_random(
 
 
 def FedProx_stratified_sampling(
+    dataset: str,
     sampling: str,
     model,
     n_sampled: int,
@@ -417,8 +418,13 @@ def FedProx_stratified_sampling(
     weights = n_samples / np.sum(n_samples)
     print("Clients' weights:", weights)
 
-    fr = open('saved_exp_info/cluster_result/cifar10_balance_dir.pkl', 'rb')
-    cluster_result = pickle.load(fr)
+    if dataset[:5] == "MNIST":
+        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_MNIST_dataloaders(dataset, batch_size)
+    elif dataset[:5] == "CIFAR":
+        fr = open('saved_exp_info/cluster_result/cifar10_balance_dir.pkl', 'rb')
+        cluster_result = pickle.load(fr)
+    elif dataset[:6] == "FMNIST":
+        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_FMNIST_dataloaders(dataset, batch_size)
 
     N_CLASSES = len(cluster_result)
     SIZE_CLASSES = [len(cls) for cls in cluster_result]
