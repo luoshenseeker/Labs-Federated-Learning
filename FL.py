@@ -263,6 +263,7 @@ def main(args):
             from py_func.FedProx import FedProx_stratified_sampling
 
             FedProx_stratified_sampling(
+                dataset,
                 sampling,
                 model_0,
                 n_sampled,
@@ -353,17 +354,17 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, default="CIFAR10",
                         choices=["CIFAR10", "MNIST", "FMNIST"])
     parser.add_argument("--datasetarg", type=str, default="_bbal_10")
-    parser.add_argument("--sampling", type=str, default="random",
+    parser.add_argument("--sampling", type=str, default="ours",
                         choices=["random", "ours", "important", "clustered_1", "clustered_2"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
-    parser.add_argument("--update_method", type=str, default="SCAFFOLD",
+    parser.add_argument("--update_method", type=str, default="AVG",
                         choices=["SCAFFOLD","AVG"])
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--n_SGD", type=int, default=50)
     parser.add_argument("--learning_rate", type=float, default=0.01, help="Local learning rate")
     parser.add_argument("--decay", type=float, default=1.0)
-    parser.add_argument("--p", type=float, default=0.01)
+    parser.add_argument("--p", type=float, default=0.1)
     parser.add_argument("--mu", type=float, default=0)
     parser.add_argument('-f', '--force', dest="force", action='store_true', help="Force to simulate.")
     parser.add_argument('-v', "--convex", dest='convex', action='store_true', help="Convexity of MNIST")
