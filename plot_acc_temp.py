@@ -59,7 +59,8 @@ exp_name = ['3.5', '3.6', '3.7']
 for exp_name_ in exp_name:
     print(exp_name_)
     # pkl_file = not_final_pkl_dict[exp_name_]
-    pkl_file = ["CIFAR10_bbal_0.01_ours_any_i800_N80_lr0.05_B50_d1.0_p0.1_m1_0.pkl"]
+    pkl_file = ["CIFAR10_bbal_0.01_ours_any_i800_N80_lr0.05_B50_d1.0_p0.1_m1_0.pkl0",
+                 "CIFAR10_bbal_0.01_ours_any_i800_N80_lr0.05_B50_d1.0_p0.1_m1_0.pkl1"]
 
     start = 0
     end = 800
@@ -134,5 +135,5 @@ plt.xlabel('Communication Rounds', {'size':15})
 plt.ylabel('Test Accuracy', {'size':15})
 plt.title(exp_name, {'size':18})
 # # plt.title('MNIST Non-iid p=1', {'size':18})  # title的大小设置为18
-# plt.savefig(f'../plot_result/{exp_name}_md.pdf', format='pdf', dpi=600, bbox_inches="tight")
-plt.show()
+plt.savefig(f'/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/plot_result/{1}_md.png', format='png', dpi=600, bbox_inches="tight")
+# plt.show()
