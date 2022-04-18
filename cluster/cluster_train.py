@@ -15,7 +15,9 @@ import config
 # # 1.1 从pkl文件中读取数据
 # '''注意文件的读取路径！！！！！'''
 # # root_path = "../saved_exp_info/fedlab_save/num_cnt/cifar10_balanced_dirichlet_num_cnt.pkl"
-root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/CIFAR10_bbal_0.01.pkl"
+# root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/CIFAR10_bbal_0.01.pkl"
+root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/CIFAR10_bbal_10.pkl"
+
 print("@@@ cluster开始读取data_partition_result文件：", root_path, " @@@")
 m_data = []
 data = []
