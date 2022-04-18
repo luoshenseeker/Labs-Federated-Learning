@@ -133,6 +133,7 @@ def main(args):
             from py_func.FedProx import FedProx_stratified_sampling
 
             FedProx_stratified_sampling(
+                dataset,
                 sampling,
                 model_0,
                 n_sampled,
@@ -355,7 +356,7 @@ if __name__ == "__main__":
                         choices=["CIFAR10", "MNIST", "FMNIST"])
     parser.add_argument("--datasetarg", type=str, default="_bbal_10")
     parser.add_argument("--sampling", type=str, default="ours",
-                        choices=["random", "ours", "important", "clustered_1", "clustered_2"])
+                        choices=["random", "ours", "important", "clustered_1", "clustered_2", "FedAvg"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
     parser.add_argument("--update_method", type=str, default="AVG",

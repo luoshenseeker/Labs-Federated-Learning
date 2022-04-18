@@ -418,13 +418,19 @@ def FedProx_stratified_sampling(
     weights = n_samples / np.sum(n_samples)
     print("Clients' weights:", weights)
 
-    if dataset[:5] == "MNIST":
-        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_MNIST_dataloaders(dataset, batch_size)
-    elif dataset[:5] == "CIFAR":
-        fr = open('saved_exp_info/cluster_result/cifar10_balance_dir.pkl', 'rb')
-        cluster_result = pickle.load(fr)
-    elif dataset[:6] == "FMNIST":
-        list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_FMNIST_dataloaders(dataset, batch_size)
+    # if dataset[:5] == "MNIST":
+    #     list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_MNIST_dataloaders(dataset, batch_size)
+    # elif dataset[:5] == "CIFAR":
+    #     fr = open('saved_exp_info/cluster_result/cifar10_balance_dir.pkl', 'rb')
+    #     cluster_result = pickle.load(fr)
+    # elif dataset[:6] == "FMNIST":
+    #     list_dls_train, list_dls_test, list_dls_train_full, list_dls_test_full = get_FMNIST_dataloaders(dataset, batch_size)
+
+    from cluster.cluster_train import cluster_training
+
+    result_path = cluster_training(dataset)
+    fr = open(result_path, 'rb')
+    cluster_result = pickle.load(fr)
 
     N_CLASSES = len(cluster_result)
     SIZE_CLASSES = [len(cls) for cls in cluster_result]
