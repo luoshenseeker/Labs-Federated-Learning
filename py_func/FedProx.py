@@ -1395,6 +1395,8 @@ def SCAFFOLD_clustered_sampling(
 
     loss_f = loss_classifier
 
+    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]  # init server control
+
     # Variables initialization
     K = len(training_sets)  # number of clients
     controls_group = [deepcopy(server_controls) for i in range(K)]             # init clients control and related vars needed later
@@ -1447,36 +1449,6 @@ def SCAFFOLD_clustered_sampling(
 
         if i < iter_FP:
             print("MD sampling, now quit!")
-        #
-        #     np.random.seed(i)
-        #     sampled_clients = np.random.choice(
-        #         K, size=n_sampled, replace=True, p=weights
-        #     )
-        #
-        #     for k in sampled_clients:
-        #
-        #         local_model = deepcopy(model)
-        #         local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
-        #
-        #         local_learning(
-        #             local_model,
-        #             mu,
-        #             local_optimizer,
-        #             training_sets[k],
-        #             n_SGD,
-        #             loss_f,
-        #         )
-        #
-        #         # SAVE THE LOCAL MODEL TRAINED
-        #         list_params = list(local_model.parameters())
-        #         list_params = [
-        #             tens_param.detach() for tens_param in list_params
-        #         ]
-        #         clients_params.append(list_params)
-        #         clients_models.append(deepcopy(local_model))
-        #
-        #         sampled_clients_for_grad.append(k)
-        #         sampled_clients_hist[i, k] = 1
 
         else:
             if sampling == "clustered_2":
@@ -1496,15 +1468,25 @@ def SCAFFOLD_clustered_sampling(
             for k in sample_clients(distri_clusters):
 
                 local_model = deepcopy(model)
-                local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
+                for control, new_control in zip(server_controls, controls_group[k]):
+                    control.data = new_control.data
+                local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
+                total_samples += len(training_sets[k].dataset)
 
-                local_learning(
+                local_learning_scaffold(
                     local_model,
                     mu,
                     local_optimizer,
                     training_sets[k],
                     n_SGD,
                     loss_f,
+                    delta_model=delta_model_group[k],
+                    trainloaderfull=training_sets_full,
+                    server_controls=server_controls,
+                    client_controls=controls_group[k],
+                    delta_client_controls=delta_controls_group[k],
+                    lr=lr,
+                    batch_size=batch_size
                 )
 
                 # SAVE THE LOCAL MODEL TRAINED
@@ -1514,13 +1496,22 @@ def SCAFFOLD_clustered_sampling(
                 ]
                 clients_params.append(list_params)
                 clients_models.append(deepcopy(local_model))
+                clients_params_delta_control.append(delta_controls_group[k])
+                clients_params_delta_model.append(delta_model_group[k])
 
                 sampled_clients_for_grad.append(k)
                 sampled_clients_hist[i, k] = 1
 
         # CREATE THE NEW GLOBAL MODEL AND SAVE IT
-        model = FedAvg_agregation_process(
-            deepcopy(model), clients_params, weights=[1 / n_sampled] * n_sampled
+        model = Fed_SCAFFOLD_aggregation_process(
+            model=model,
+            server_controls=server_controls,
+            delta_model_group=clients_params_delta_model,
+            delta_controls_group=clients_params_delta_control,
+            clients_models_hist=clients_params,
+            tot_users_num=K,
+            total_samples=total_samples,
+            weights=[1 / n_sampled] * n_sampled
         )
 
         # COMPUTE THE LOSS/ACCURACY OF THE DIFFERENT CLIENTS WITH THE NEW MODEL
