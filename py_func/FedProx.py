@@ -173,7 +173,7 @@ def local_learning(model, mu: float, optimizer, train_data, n_SGD: int, loss_f):
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(model, model_0)
+        # batch_loss += mu / 2 * difference_models_norm_2(model, model_0)
 
         batch_loss.backward()
         optimizer.step()
@@ -210,7 +210,7 @@ def local_learning_scaffold(model, mu: float, optimizer, train_data, local_epoch
         predictions = model(features)
 
         batch_loss = loss_f(predictions, labels)
-        batch_loss += mu / 2 * difference_models_norm_2(model, server_model)
+        # batch_loss += mu / 2 * difference_models_norm_2(model, server_model)
 
         batch_loss.backward()
         optimizer.step(server_controls, client_controls)
