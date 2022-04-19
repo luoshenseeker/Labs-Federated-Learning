@@ -349,6 +349,12 @@ not_final_pkl_dict = {
     # FedNova_CIFAR10_shard 600rounds
     '3.7': [
         "cifar10_noniid-labeldir_0.0_0.5.pkl",
+    ],
+    '4.0': [
+        "MNIST_iid_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
     ]
 
 }
