@@ -222,9 +222,9 @@ def main(args):
         if sampling == "random" and (
                 not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
         ):
-            from py_func.FedProx import FedProx_SCAFFOLD_sampling_random
+            from py_func.FedProx import SCAFFOLD_sampling_random
 
-            FedProx_SCAFFOLD_sampling_random(
+            SCAFFOLD_sampling_random(
                 model=model_0,
                 sampling=sampling,
                 n_sampled=n_sampled,
