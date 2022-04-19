@@ -487,9 +487,10 @@ def FedProx_stratified_sampling(
         # selects = choice(100, 10, replace=False, p=[0.01 for _ in range(100)])
         # for k in selects:
 
+        print("### chosen client index: ###")
         for _ in range(int(n_sampled / N_CLASSES)):  # 每个class抽两个client训练，每个epoch中12345,12345
             for k in sample_clients(chosen_p):
-                print("### chosen client index:", k, " ###")
+                print(f"{k},", end="")
 
                 local_model = deepcopy(model)
                 local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
@@ -513,6 +514,7 @@ def FedProx_stratified_sampling(
 
                 sampled_clients_for_grad.append(k)
                 sampled_clients_hist[i, k] = 1
+        print("\b ")
 
         # CREATE THE NEW GLOBAL MODEL AND SAVE IT
         model = FedAvg_agregation_process(
