@@ -265,24 +265,27 @@ def main(args):
         if (sampling == "ours") and (
                 not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
         ):
-            from py_func.FedProx import FedProx_stratified_sampling
+            from py_func.FedProx import SCAFFOLD_stratified_sampling
 
-            FedProx_stratified_sampling(
-                dataset,
-                sampling,
-                model_0,
-                n_sampled,
-                list_dls_train,
-                list_dls_test,
-                n_iter,
-                n_SGD,
-                lr,
-                file_name,
-                sim_type,
-                0,
-                decay,
-                meas_perf_period,
-                mu,
+            SCAFFOLD_stratified_sampling(
+                dataset=dataset,
+                sampling=sampling,
+                model=model_0,
+                n_sampled=n_sampled,
+                training_sets=list_dls_train,
+                testing_sets=list_dls_test,
+                n_iter=n_iter,
+                n_SGD=n_SGD,
+                lr=lr,
+                file_name=file_name,
+                batch_size=batch_size,
+                sim_type=sim_type,
+                iter_FP=0,
+                decay=decay,
+                metric_period=meas_perf_period,
+                mu=mu,
+                training_sets_full=list_dls_train_full,
+                testing_sets_full=list_dls_test_full
             )
 
         if (sampling == "clustered_1" or sampling == "clustered_2") and (
