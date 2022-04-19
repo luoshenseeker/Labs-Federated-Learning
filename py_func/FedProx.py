@@ -1562,10 +1562,13 @@ def SCAFFOLD_stratified_sampling(
     n_sampled: int,
     training_sets: list,
     testing_sets: list,
+    training_sets_full,
+    testing_sets_full,
     n_iter: int,
     n_SGD: int,
     lr: float,
     file_name: str,
+    batch_size: int,
     sim_type: str,
     iter_FP=0,
     decay=1.0,
@@ -1593,8 +1596,15 @@ def SCAFFOLD_stratified_sampling(
 
     loss_f = loss_classifier
 
+    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]  # init server control
+
     # Variables initialization
     K = len(training_sets)  # number of clients
+    controls_group = [deepcopy(server_controls) for i in range(K)]             # init clients control and related vars needed later
+    # server_controls = [deepcopy(server_controls) for i in range(K)]
+    delta_controls_group = [deepcopy(server_controls) for i in range(K)]
+    delta_model_group = [deepcopy(server_controls) for i in range(K)]
+
     n_samples = np.array([len(db.dataset) for db in training_sets])
     weights = n_samples / np.sum(n_samples)
     print("Clients' weights:", weights)
@@ -1637,6 +1647,9 @@ def SCAFFOLD_stratified_sampling(
 
         clients_params = []
         clients_models = []
+        clients_params_delta_control = []
+        clients_params_delta_model = []
+        total_samples = 0
         sampled_clients_for_grad = []
 
         # 鲁棒性问题！抽样率p的改变
@@ -1671,16 +1684,26 @@ def SCAFFOLD_stratified_sampling(
             for k in sample_clients(chosen_p):
                 print(f"{k},", end="")
 
+                # send parameters
                 local_model = deepcopy(model)
-                local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
-
-                local_learning(
+                for control, new_control in zip(server_controls, controls_group[k]):
+                    control.data = new_control.data
+                local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
+                total_samples += len(training_sets[k].dataset)
+                local_learning_scaffold(
                     local_model,
                     mu,
                     local_optimizer,
                     training_sets[k],
                     n_SGD,
                     loss_f,
+                    delta_model=delta_model_group[k],
+                    trainloaderfull=training_sets_full,
+                    server_controls=server_controls,
+                    client_controls=controls_group[k],
+                    delta_client_controls=delta_controls_group[k],
+                    lr=lr,
+                    batch_size=batch_size
                 )
 
                 # SAVE THE LOCAL MODEL TRAINED
@@ -1690,14 +1713,23 @@ def SCAFFOLD_stratified_sampling(
                 ]
                 clients_params.append(list_params)
                 clients_models.append(deepcopy(local_model))
+                clients_params_delta_control.append(delta_controls_group[k])
+                clients_params_delta_model.append(delta_model_group[k])
 
                 sampled_clients_for_grad.append(k)
                 sampled_clients_hist[i, k] = 1
         print("\b ")
 
         # CREATE THE NEW GLOBAL MODEL AND SAVE IT
-        model = FedAvg_agregation_process(
-            deepcopy(model), clients_params, weights=[1 / n_sampled] * n_sampled
+        model = Fed_SCAFFOLD_aggregation_process(
+            model=model,
+            server_controls=server_controls,
+            delta_model_group=clients_params_delta_model,
+            delta_controls_group=clients_params_delta_control,
+            clients_models_hist=clients_params,
+            tot_users_num=K,
+            total_samples=total_samples,
+            weights=[1 / n_sampled] * n_sampled
         )
 
         # COMPUTE THE LOSS/ACCURACY OF THE DIFFERENT CLIENTS WITH THE NEW MODEL
