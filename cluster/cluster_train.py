@@ -21,11 +21,15 @@ def cluster_training(dataset):
     root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/"
     if dataset[:5] == "CIFAR":
         datafile_name = "CIFAR10_bbal_10.pkl"
+    if dataset[:11] == "MNIST_shard":
+        datafile_name = "MNIST_shard.pkl"
     elif dataset[:10] == "MNIST_bbal":
         datafile_name = "MNIST_bbal_10.pkl"
     elif dataset[:9] == "MNIST_iid":
         datafile_name = "MNIST_iid.pkl"
     
+    datafile_name = dataset
+
     root_path += datafile_name
 
     print("@@@ cluster开始读取data_partition_result文件：", root_path, " @@@")

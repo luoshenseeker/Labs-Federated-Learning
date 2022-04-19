@@ -255,6 +255,7 @@ def save_log(log, directory, file_name):
 
 def FedProx_sampling_random(
     model,
+    sampling,
     n_sampled,
     training_sets: list,
     testing_sets: list,
@@ -301,7 +302,7 @@ def FedProx_sampling_random(
     # LOSS AND ACCURACY OF THE INITIAL MODEL
     server_loss = np.dot(weights, loss_hist[0])
     server_acc = np.dot(weights, acc_hist[0])
-    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
 
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
@@ -354,7 +355,7 @@ def FedProx_sampling_random(
             server_acc = np.dot(weights, acc_hist[i + 1])
 
             print(
-                f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+                f"====> i {sampling}: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
             )
 
         # DECREASING THE LEARNING RATE AT EACH SERVER ITERATION
@@ -446,7 +447,7 @@ def FedProx_stratified_sampling(
     # LOSS AND ACCURACY OF THE INITIAL MODEL
     server_loss = np.dot(weights, loss_hist[0])
     server_acc = np.dot(weights, acc_hist[0])
-    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
 
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
@@ -533,7 +534,7 @@ def FedProx_stratified_sampling(
             server_acc = np.dot(weights, acc_hist[i + 1])
 
             print(
-                f"====> i: {i + 1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+                f"====> i {sampling}: {i + 1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
             )
 
         lr *= decay
@@ -610,7 +611,7 @@ def FedProx_clustered_sampling(
     # LOSS AND ACCURACY OF THE INITIAL MODEL
     server_loss = np.dot(weights, loss_hist[0])
     server_acc = np.dot(weights, acc_hist[0])
-    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
 
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
@@ -727,7 +728,7 @@ def FedProx_clustered_sampling(
             server_acc = np.dot(weights, acc_hist[i + 1])
 
             print(
-                f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+                f"====> i {sampling}: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
             )
 
         # UPDATE THE HISTORY OF LATEST GRADIENT
@@ -756,6 +757,7 @@ def FedProx_clustered_sampling(
 
 def FedProx_sampling_target(
     model,
+    sampling,
     n_sampled: int,
     training_sets: list,
     testing_sets: list,
@@ -809,7 +811,7 @@ def FedProx_sampling_target(
     server_acc = sum(
         [weights[i] * acc_hist[-1][i] for i in range(len(weights))]
     )
-    print(f"====> i: 0 Loss: {server_loss} Server Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Server Test Accuracy: {server_acc}")
 
     for i in range(n_iter):
 
@@ -864,7 +866,7 @@ def FedProx_sampling_target(
         )
 
         print(
-            f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+            f"====> i {sampling}: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
         )
 
         server_hist.append(deepcopy(model))
@@ -890,6 +892,7 @@ def FedProx_sampling_target(
 
 def FedProx_FedAvg_sampling(
     model,
+    sampling,
     n_sampled,
     training_sets: list,
     testing_sets: list,
@@ -936,7 +939,7 @@ def FedProx_FedAvg_sampling(
     # LOSS AND ACCURACY OF THE INITIAL MODEL
     server_loss = np.dot(weights, loss_hist[0])
     server_acc = np.dot(weights, acc_hist[0])
-    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
 
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
@@ -990,7 +993,7 @@ def FedProx_FedAvg_sampling(
             server_acc = np.dot(weights, acc_hist[i + 1])
 
             print(
-                f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+                f"====> i {sampling}: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
             )
 
         # DECREASING THE LEARNING RATE AT EACH SERVER ITERATION
@@ -1038,6 +1041,7 @@ class SCAFFOLDOptimizer(Optimizer):
 
 def FedProx_SCAFFOLD_sampling_random(
     model,
+    sampling,
     n_sampled,
     training_sets: list,
     testing_sets: list,
@@ -1094,7 +1098,7 @@ def FedProx_SCAFFOLD_sampling_random(
     # LOSS AND ACCURACY OF THE INITIAL MODEL
     server_loss = np.dot(weights, loss_hist[0])
     server_acc = np.dot(weights, acc_hist[0])
-    print(f"====> i: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
+    print(f"====> i {sampling}: 0 Loss: {server_loss} Test Accuracy: {server_acc}")
 
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
@@ -1163,7 +1167,7 @@ def FedProx_SCAFFOLD_sampling_random(
             server_acc = np.dot(weights, acc_hist[i + 1])
 
             print(
-                f"====> i: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
+                f"====> i {sampling}: {i+1} Loss: {server_loss} Server Test Accuracy: {server_acc}"
             )
 
         # DECREASING THE LEARNING RATE AT EACH SERVER ITERATION

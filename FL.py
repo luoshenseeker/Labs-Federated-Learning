@@ -95,6 +95,7 @@ def main(args):
 
             FedProx_sampling_random(
                 model_0,
+                sampling,
                 n_sampled,
                 list_dls_train,
                 list_dls_test,
@@ -182,6 +183,7 @@ def main(args):
 
             FedProx_sampling_target(
                 model_0,
+                sampling,
                 n_sampled,
                 list_dls_train,
                 list_dls_test,
@@ -201,6 +203,7 @@ def main(args):
 
             FedProx_FedAvg_sampling(
                 model_0,
+                sampling,
                 n_sampled,
                 list_dls_train,
                 list_dls_test,
@@ -223,6 +226,7 @@ def main(args):
 
             FedProx_SCAFFOLD_sampling_random(
                 model=model_0,
+                sampling=sampling,
                 n_sampled=n_sampled,
                 training_sets=list_dls_train,
                 testing_sets=list_dls_test,
@@ -313,6 +317,7 @@ def main(args):
 
             FedProx_sampling_target(
                 model_0,
+                sampling,
                 n_sampled,
                 list_dls_train,
                 list_dls_test,
@@ -332,6 +337,7 @@ def main(args):
 
             FedProx_FedAvg_sampling(
                 model_0,
+                sampling,
                 n_sampled,
                 list_dls_train,
                 list_dls_test,
@@ -356,7 +362,7 @@ if __name__ == "__main__":
                         choices=["CIFAR10", "MNIST", "FMNIST"])
     parser.add_argument("--datasetarg", type=str, default="_bbal_10")
     parser.add_argument("--sampling", type=str, default="ours",
-                        choices=["random", "ours", "important", "clustered_1", "clustered_2", "FedAvg"])
+                        choices=["random", "ours", "clustered_1", "clustered_2", "FedAvg"])
     parser.add_argument("--sim_type", type=str, default="any",
                         choices=["cosine", "L2", "L1", "any"])
     parser.add_argument("--update_method", type=str, default="AVG",
