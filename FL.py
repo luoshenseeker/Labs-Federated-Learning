@@ -333,9 +333,9 @@ def main(args):
         if sampling == "FedAvg" and (
                 not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
         ):
-            from py_func.FedProx import FedProx_FedAvg_sampling
+            from py_func.FedProx import SCAFFOLD_FedAvg_sampling
 
-            FedProx_FedAvg_sampling(
+            SCAFFOLD_FedAvg_sampling(
                 model_0,
                 sampling,
                 n_sampled,

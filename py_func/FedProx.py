@@ -74,6 +74,7 @@ def Fed_SCAFFOLD_aggregation_process(
     model, server_controls, delta_model_group, delta_controls_group, clients_models_hist: list, weights: list, total_samples, tot_users_num: int
 ):
     new_model = deepcopy(model)
+    # set_to_zero_model_weights(new_model)
     assert(len(clients_models_hist) > 0)
     num_of_selected_users = len(clients_models_hist)
     num_of_users = tot_users_num
@@ -1012,6 +1013,7 @@ def FedProx_FedAvg_sampling(
 
     return model, loss_hist, acc_hist
 
+scaffold_weight_decay = 0
 class SCAFFOLDOptimizer(Optimizer):
     def __init__(self, params, lr, weight_decay):
         defaults = dict(lr=lr, weight_decay=weight_decay)
@@ -1105,6 +1107,8 @@ def SCAFFOLD_sampling_random(
     for i in range(n_iter):
 
         clients_params = []
+        clients_params_delta_control = []
+        clients_params_delta_model = []
         total_samples = 0
 
         np.random.seed(i)
@@ -1115,7 +1119,7 @@ def SCAFFOLD_sampling_random(
         for k in sampled_clients:
 
             local_model = deepcopy(model)
-            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=decay)
+            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
             total_samples += len(training_sets[k].dataset)
 
             local_learning_scaffold(
@@ -1138,6 +1142,8 @@ def SCAFFOLD_sampling_random(
             list_params = list(local_model.parameters())
             list_params = [tens_param.detach() for tens_param in list_params]
             clients_params.append(list_params)
+            clients_params_delta_control.append(delta_controls_group[k])
+            clients_params_delta_model.append(delta_model_group[k])
 
             sampled_clients_hist[i, k] = 1
 
@@ -1145,8 +1151,8 @@ def SCAFFOLD_sampling_random(
         model = Fed_SCAFFOLD_aggregation_process(
             model=model,
             server_controls=server_controls,
-            delta_model_group=delta_model_group,
-            delta_controls_group=delta_controls_group,
+            delta_model_group=clients_params_delta_model,
+            delta_controls_group=clients_params_delta_control,
             clients_models_hist=clients_params,
             tot_users_num=K,
             total_samples=total_samples,
@@ -1192,10 +1198,13 @@ def SCAFFOLD_FedAvg_sampling(
     n_sampled,
     training_sets: list,
     testing_sets: list,
+    training_sets_full,
+    testing_sets_full,
     n_iter: int,
     n_SGD: int,
     lr,
     file_name: str,
+    batch_size: int,
     decay=1,
     metric_period=1,
     mu=0,
@@ -1219,7 +1228,14 @@ def SCAFFOLD_FedAvg_sampling(
 
     loss_f = loss_classifier
 
+    server_controls = [torch.zeros_like(p.data) for p in model.parameters() if p.requires_grad]  # init server control
+
     K = len(training_sets)  # number of clients
+    controls_group = [deepcopy(server_controls) for i in range(K)]             # init clients control and related vars needed later
+    # server_controls = [deepcopy(server_controls) for i in range(K)]
+    delta_controls_group = [deepcopy(server_controls) for i in range(K)]
+    delta_model_group = [deepcopy(server_controls) for i in range(K)]
+
     n_samples = np.array([len(db.dataset) for db in training_sets])
     weights = n_samples / np.sum(n_samples)
     print("Clients' weights:", weights)
@@ -1242,6 +1258,9 @@ def SCAFFOLD_FedAvg_sampling(
     for i in range(n_iter):
 
         clients_params = []
+        clients_params_delta_control = []
+        clients_params_delta_model = []
+        total_samples = 0
 
         np.random.seed(i)
         sampled_clients = random.sample([x for x in range(K)], n_sampled)
@@ -1250,29 +1269,44 @@ def SCAFFOLD_FedAvg_sampling(
         for k in sampled_clients:
 
             local_model = deepcopy(model)
-            local_optimizer = optim.SGD(local_model.parameters(), lr=lr)
+            local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
+            total_samples += len(training_sets[k].dataset)
 
-            local_learning(
+            local_learning_scaffold(
                 local_model,
                 mu,
                 local_optimizer,
                 training_sets[k],
                 n_SGD,
                 loss_f,
+                delta_model=delta_model_group[k],
+                trainloaderfull=training_sets_full,
+                server_controls=server_controls,
+                client_controls=controls_group[k],
+                delta_client_controls=delta_controls_group[k],
+                lr=lr,
+                batch_size=batch_size
             )
 
             # GET THE PARAMETER TENSORS OF THE MODEL
             list_params = list(local_model.parameters())
             list_params = [tens_param.detach() for tens_param in list_params]
             clients_params.append(list_params)
+            clients_params_delta_control.append(delta_controls_group[k])
+            clients_params_delta_model.append(delta_model_group[k])
 
             sampled_clients_hist[i, k] = 1
 
         # CREATE THE NEW GLOBAL MODEL
-        model = FedAvg_agregation_process_for_FA_sampling(
-            deepcopy(model),
-            clients_params,
-            weights=[weights[client] for client in sampled_clients],
+        model = Fed_SCAFFOLD_aggregation_process(
+            model=model,
+            server_controls=server_controls,
+            delta_model_group=clients_params_delta_model,
+            delta_controls_group=clients_params_delta_control,
+            clients_models_hist=clients_params,
+            tot_users_num=K,
+            total_samples=total_samples,
+            weights=[1 / n_sampled] * n_sampled
         )
 
         if i % metric_period == 0:
