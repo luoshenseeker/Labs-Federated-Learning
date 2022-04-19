@@ -33,34 +33,57 @@ def read_pkl_origin(filename):
             server_acc.append(np.dot(weights, acc_hist[i]))
 
     return server_acc
-#
-#
-# def read_pkl(filename):
-#     np.set_printoptions(threshold=np.inf)   # 解决显示不完全问题
-#
-#     fr=open(filename,'rb')
-#
-#     acc_hist = pickle.load(fr)
-#
-#     server_acc = []
-#     # server_loss = np.dot(weights, loss_hist[i + 1])
-#     for i in range(len(acc_hist)):
-#         n_samples = np.array([800 for _ in range(100)])
-#         weights = n_samples / np.sum(n_samples)   # sample size为聚合权重
-#         if np.dot(weights, acc_hist[i]) != 0.0:
-#             server_acc.append(np.dot(weights, acc_hist[i]))
-#         # print(server_acc)
-#
-#     return server_acc
+
+def get_exp_name(s: str):
+    # file_name = (
+    #     f"{dataset}_{sampling}_{sim_type}_i{n_iter}_N{n_SGD}_lr{lr}"
+    #     + f"_B{batch_size}_d{decay}_p{p}_m{meas_perf_period}_{seed}_{update_method}_{convex_state}"
+    # )
+    name_list = s.split("_")
+    clustered_p_pos = 9
+    dataset_pos = 0
+    iid_select_method_pos = 2
+    non_iid_select_method_pos = iid_select_method_pos + 1
+    para_name_show = 1 # 1:hide 0:show
+    if name_list[1] == "iid":
+        if name_list[iid_select_method_pos] == "clustered":
+            offset = 1
+            exp_name = f"{name_list[dataset_pos]} iid q={name_list[clustered_p_pos + offset][para_name_show:]}"
+        else:
+            offset = 0
+            exp_name = f"{name_list[dataset_pos]} iid q={name_list[clustered_p_pos + offset][para_name_show:]}"
+    elif name_list[1] == "shard":
+        if name_list[iid_select_method_pos] == "clustered":
+            offset = 1
+            exp_name = f"{name_list[dataset_pos]} shard q={name_list[clustered_p_pos + offset][para_name_show:]}"
+        else:
+            offset = 0
+            exp_name = f"{name_list[dataset_pos]} shard q={name_list[clustered_p_pos + offset][para_name_show:]}"
+    else:
+        if name_list[non_iid_select_method_pos] == "clustered":
+            offset = 2
+            exp_name = f"{name_list[dataset_pos]} shard q={name_list[clustered_p_pos + offset][para_name_show:]}"
+        else:
+            offset = 1
+            exp_name = f"{name_list[dataset_pos]} shard q={name_list[clustered_p_pos + offset][para_name_show:]}"
+    return exp_name
 
 # '1.3', 2.6.c
 # exp_name = ['1.1', '1.2', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.7']
 exp_name = ['3.5', '3.6', '3.7']
 for exp_name_ in exp_name:
     print(exp_name_)
-    # pkl_file = not_final_pkl_dict[exp_name_]
-    pkl_file = ["CIFAR10_bbal_0.01_ours_any_i800_N80_lr0.05_B50_d1.0_p0.1_m1_0.pkl0",
-                 "CIFAR10_bbal_0.01_ours_any_i800_N80_lr0.05_B50_d1.0_p0.1_m1_0.pkl1"]
+    pkl_file = not_final_pkl_dict[exp_name_]
+    pkl_file = [
+        "MNIST_iid_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_iid_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_conv.pkl",
+        # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl"
+    ]
+
+    exp_name = get_exp_name(pkl_file[0])
 
     start = 0
     end = 800
@@ -87,6 +110,10 @@ for exp_name_ in exp_name:
 
     n = len(pkl_file)
     for k in range(n):
+        if pkl_file[k][:5] == "MNIST":
+            end = 200
+        if pkl_file[k][:5] == "CIFAR":
+            end = 800
 
         # if pkl_file[k][:1] == 'm' or pkl_file[k][:1] == 'f' or pkl_file[k][:1] == 'c':
         y[k] = read_pkl_origin(pkl_file[k])
@@ -117,10 +144,10 @@ for exp_name_ in exp_name:
                          # color=colors[k],
                          alpha=0.35)
 
-xxx = [0 for _ in range(len(pkl_file))]
-for x in range(len(pkl_file)):
-    xxx[x] = pkl_file[x][-9:-4]
-plt.legend(labels=xxx)
+# xxx = [0 for _ in range(len(pkl_file))]
+# for x in range(len(pkl_file)):
+#     xxx[x] = pkl_file[x][-9:-4]
+# plt.legend(labels=xxx)
 
 if n == 4:
     plt.legend(labels=["Random", "Importance", "Cluster", "Ours"])
@@ -137,3 +164,5 @@ plt.title(exp_name, {'size':18})
 # # plt.title('MNIST Non-iid p=1', {'size':18})  # title的大小设置为18
 plt.savefig(f'/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/plot_result/{1}_md.png', format='png', dpi=600, bbox_inches="tight")
 # plt.show()
+
+print("Saved")
