@@ -336,18 +336,21 @@ def main(args):
             from py_func.FedProx import SCAFFOLD_FedAvg_sampling
 
             SCAFFOLD_FedAvg_sampling(
-                model_0,
-                sampling,
-                n_sampled,
-                list_dls_train,
-                list_dls_test,
-                n_iter,
-                n_SGD,
-                lr,
-                file_name,
-                decay,
-                meas_perf_period,
-                mu,
+                model=model_0,
+                sampling=sampling,
+                n_sampled=n_sampled,
+                training_sets=list_dls_train,
+                testing_sets=list_dls_test,
+                n_iter=n_iter,
+                n_SGD=n_SGD,
+                lr=lr,
+                file_name=file_name,
+                batch_size=batch_size,
+                decay=decay,
+                metric_period=meas_perf_period,
+                mu=mu,
+                training_sets_full=list_dls_train_full,
+                testing_sets_full=list_dls_test_full
             )
 
     print("EXPERIMENT IS FINISHED")
