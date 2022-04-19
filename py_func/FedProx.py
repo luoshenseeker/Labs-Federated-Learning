@@ -1118,9 +1118,12 @@ def SCAFFOLD_sampling_random(
             K, size=n_sampled, replace=True, p=weights
         )
 
-        for k in sampled_clients:
-
+        for k in sampled_clients:    
+            # send parameters
             local_model = deepcopy(model)
+            for control, new_control in zip(server_controls, controls_group[k]):
+                control.data = new_control.data
+
             local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
             total_samples += len(training_sets[k].dataset)
 
@@ -1269,8 +1272,11 @@ def SCAFFOLD_FedAvg_sampling(
         # print("sampled clients", sampled_clients)
 
         for k in sampled_clients:
-
+            # send parameters
             local_model = deepcopy(model)
+            for control, new_control in zip(server_controls, controls_group[k]):
+                control.data = new_control.data
+
             local_optimizer = SCAFFOLDOptimizer(local_model.parameters(), lr=lr, weight_decay=scaffold_weight_decay)
             total_samples += len(training_sets[k].dataset)
 
