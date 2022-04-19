@@ -28,7 +28,7 @@ def cluster_training(dataset):
     elif dataset[:9] == "MNIST_iid":
         datafile_name = "MNIST_iid.pkl"
     
-    datafile_name = dataset
+    datafile_name = dataset + ".pkl"
 
     root_path += datafile_name
 
