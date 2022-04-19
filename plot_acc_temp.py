@@ -70,25 +70,31 @@ def get_exp_name(s: str):
 
 # '1.3', 2.6.c
 # exp_name = ['1.1', '1.2', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.7']
-exp_name = ['3.5', '3.6', '3.7']
+exp_name = ['4.0']
 for exp_name_ in exp_name:
     print(exp_name_)
     pkl_file = not_final_pkl_dict[exp_name_]
-    pkl_file = [
-        "MNIST_iid_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
-        "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
-        "MNIST_iid_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
-        "MNIST_iid_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
-        # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_conv.pkl",
-        # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl"
-    ]
+    # pkl_file = [
+    #     "MNIST_iid_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     "MNIST_iid_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     "MNIST_iid_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_conv.pkl",
+    #     # "MNIST_iid_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl"
+    # ]
 
     exp_name = get_exp_name(pkl_file[0])
 
-    start = 0
-    end = 800
-    op = 5
-    stp = 5
+    if pkl_file[0][:5] == "MNIST" or pkl_file[0][:6] == "FMNIST":
+        start = 0
+        end = 200
+        op = 5
+        stp = 5
+    elif pkl_file[0][:5] == "CIFAR":
+        start = 0
+        end = 800
+        op = 10
+        stp = 10
     # if pkl_file[0][:5] == "MNIST" or pkl_file[0][:6] == "FMNIST":
     #     start = 0
     #     end = 200
@@ -110,10 +116,6 @@ for exp_name_ in exp_name:
 
     n = len(pkl_file)
     for k in range(n):
-        if pkl_file[k][:5] == "MNIST":
-            end = 200
-        if pkl_file[k][:5] == "CIFAR":
-            end = 800
 
         # if pkl_file[k][:1] == 'm' or pkl_file[k][:1] == 'f' or pkl_file[k][:1] == 'c':
         y[k] = read_pkl_origin(pkl_file[k])
