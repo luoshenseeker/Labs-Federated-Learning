@@ -1,0 +1,18 @@
+{
+    "acc":{
+        "Experiment 1":{
+            "dataset": "MNIST_iid",
+            "p": 0.01,
+            "update_method": ["SCAFFOLD"], 
+            "convex": true
+        }
+    },
+    "loss":{
+        "Experiment 1":{
+            "dataset": "MNIST_iid",
+            "p": 0.01,
+            "update_method": ["SCAFFOLD"], 
+            "convex": true
+        }
+    }
+}
