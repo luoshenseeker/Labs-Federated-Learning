@@ -148,6 +148,10 @@ def load_model(dataset, seed, convex):
         model = CNN_CIFAR_dropout()
 
     elif dataset[:6] == "FMNIST":
-        model = CNN_FMNIST_dropout()
+        if convex:
+            model = LogisticRegression()
+        else:
+            # 解决UnboundLocalError: local variable 'model' referenced before assignment
+            model = CNN_FMNIST_dropout()
 
     return model.cuda() if config.USE_GPU else model
