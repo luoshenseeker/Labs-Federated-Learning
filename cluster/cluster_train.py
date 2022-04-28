@@ -66,7 +66,7 @@ def cluster_training(dataset, cluster_number):
     # 2.1 原型聚类：KMeans模型
     '''注意聚类的簇数！！！！！'''
     cluster_dict = {}
-    if cluster_number:
+    if not cluster_number:
         start_range = 2
         end_range = 11
     else:
@@ -115,7 +115,9 @@ def cluster_training(dataset, cluster_number):
     #     plt.show()
     #
     best_cluster_num = max(cluster_dict, key=cluster_dict.get)
-    print(best_cluster_num, cluster_dict[best_cluster_num])
+    print("-"*100)
+    print(f"最终选取聚类簇数：{best_cluster_num}, 轮廓系数：{cluster_dict[best_cluster_num]}")
+    print("-"*100)
 
     return save_path
     #
