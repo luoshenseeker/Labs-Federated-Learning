@@ -309,6 +309,9 @@ def FedProx_sampling_random(
 
     for i in range(n_iter):
 
+        if i % 10 == 0:
+            print(file_name)
+
         clients_params = []
 
         np.random.seed(i)
@@ -392,6 +395,7 @@ def FedProx_stratified_sampling(
     decay=1.0,
     metric_period=1,
     mu=0.0,
+    cluster_number=5
 ):
     """all the clients are considered in this implementation of FedProx
         Parameters:
@@ -430,7 +434,7 @@ def FedProx_stratified_sampling(
 
     from cluster.cluster_train import cluster_training
 
-    result_path = cluster_training(dataset)
+    result_path = cluster_training(dataset, cluster_number)
     fr = open(result_path, 'rb')
     cluster_result = pickle.load(fr)
 
@@ -455,6 +459,8 @@ def FedProx_stratified_sampling(
     # INITILIZATION OF THE GRADIENT HISTORY AS A LIST OF 0
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_models = []
@@ -631,6 +637,8 @@ def FedProx_clustered_sampling(
         gradients = get_gradients(sampling, model, [model] * K)
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         previous_global_model = deepcopy(model)
 
@@ -817,6 +825,8 @@ def FedProx_sampling_target(
     print(f"====> i {sampling}: 0 Loss: {server_loss} Server Test Accuracy: {server_acc}")
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_models = []
@@ -947,6 +957,8 @@ def FedProx_FedAvg_sampling(
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
 
@@ -1107,6 +1119,8 @@ def SCAFFOLD_sampling_random(
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_params_delta_control = []
@@ -1261,6 +1275,8 @@ def SCAFFOLD_FedAvg_sampling(
     sampled_clients_hist = np.zeros((n_iter, K)).astype(int)
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_params_delta_control = []
@@ -1435,6 +1451,8 @@ def SCAFFOLD_clustered_sampling(
         gradients = get_gradients(sampling, model, [model] * K)
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_params_delta_control = []
@@ -1574,6 +1592,7 @@ def SCAFFOLD_stratified_sampling(
     decay=1.0,
     metric_period=1,
     mu=0.0,
+    cluster_number=5
 ):
     """all the clients are considered in this implementation of FedProx
         Parameters:
@@ -1619,7 +1638,7 @@ def SCAFFOLD_stratified_sampling(
 
     from cluster.cluster_train import cluster_training
 
-    result_path = cluster_training(dataset)
+    result_path = cluster_training(dataset, cluster_number)
     fr = open(result_path, 'rb')
     cluster_result = pickle.load(fr)
 
@@ -1644,6 +1663,8 @@ def SCAFFOLD_stratified_sampling(
     # INITILIZATION OF THE GRADIENT HISTORY AS A LIST OF 0
 
     for i in range(n_iter):
+        if i % 10 == 0:
+            print(file_name)
 
         clients_params = []
         clients_models = []

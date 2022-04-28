@@ -32,6 +32,7 @@ def main(args):
     mu = args.mu
     update_method = args.update_method
     convex = args.convex
+    cluster_number = args.cluster_number
 
     NEWLINE = '\n'
 
@@ -149,6 +150,7 @@ def main(args):
                 decay,
                 meas_perf_period,
                 mu,
+                cluster_number=cluster_number
             )
 
         if (sampling == "clustered_1" or sampling == "clustered_2") and (
@@ -285,7 +287,8 @@ def main(args):
                 metric_period=meas_perf_period,
                 mu=mu,
                 training_sets_full=list_dls_train_full,
-                testing_sets_full=list_dls_test_full
+                testing_sets_full=list_dls_test_full,
+                cluster_number=cluster_number
             )
 
         if (sampling == "clustered_1" or sampling == "clustered_2") and (
@@ -367,9 +370,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, default="CIFAR10",
+    parser.add_argument("--dataset", type=str, default="MNIST",
                         choices=["CIFAR10", "MNIST", "FMNIST"])
-    parser.add_argument("--datasetarg", type=str, default="_bbal_10")
+    parser.add_argument("--datasetarg", type=str, default="_shard")
     parser.add_argument("--sampling", type=str, default="ours",
                         choices=["random", "ours", "clustered_1", "clustered_2", "FedAvg"])
     parser.add_argument("--sim_type", type=str, default="any",
@@ -382,6 +385,7 @@ if __name__ == "__main__":
     parser.add_argument("--decay", type=float, default=1.0)
     parser.add_argument("--p", type=float, default=0.1)
     parser.add_argument("--mu", type=float, default=0)
+    parser.add_argument("--cluster_number", type=int, default=5)
     parser.add_argument('-f', '--force', dest="force", action='store_true', help="Force to simulate.")
     parser.add_argument('-v', "--convex", dest='convex', action='store_true', help="Convexity of MNIST")
     # parser.add_argument("--model", type=str, default="cnn", choices=["linear", "mclr", "dnn", "cnn"])

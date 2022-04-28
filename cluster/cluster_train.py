@@ -12,21 +12,21 @@ from sklearn.decomposition import PCA
 from scipy.sparse import coo_matrix, csr_matrix
 import config
 
-def cluster_training(dataset):
+def cluster_training(dataset, cluster_number):
     # # 1.1 从pkl文件中读取数据
     # '''注意文件的读取路径！！！！！'''
     # # root_path = "../saved_exp_info/fedlab_save/num_cnt/cifar10_balanced_dirichlet_num_cnt.pkl"
     # root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/CIFAR10_bbal_0.01.pkl"
     print(f"clustering dataset:{dataset}")
     root_path = f"{config.ROOT_PATH}saved_exp_info/data_partition_result/"
-    if dataset[:5] == "CIFAR":
-        datafile_name = "CIFAR10_bbal_10.pkl"
-    if dataset[:11] == "MNIST_shard":
-        datafile_name = "MNIST_shard.pkl"
-    elif dataset[:10] == "MNIST_bbal":
-        datafile_name = "MNIST_bbal_10.pkl"
-    elif dataset[:9] == "MNIST_iid":
-        datafile_name = "MNIST_iid.pkl"
+    # if dataset[:5] == "CIFAR":
+    #     datafile_name = "CIFAR10_bbal_10.pkl"
+    # if dataset[:11] == "MNIST_shard":
+    #     datafile_name = "MNIST_shard.pkl"
+    # elif dataset[:10] == "MNIST_bbal":
+    #     datafile_name = "MNIST_bbal_10.pkl"
+    # elif dataset[:9] == "MNIST_iid":
+    #     datafile_name = "MNIST_iid.pkl"
     
     datafile_name = dataset + ".pkl"
 
@@ -66,7 +66,13 @@ def cluster_training(dataset):
     # 2.1 原型聚类：KMeans模型
     '''注意聚类的簇数！！！！！'''
     cluster_dict = {}
-    for i in range(5, 6):  # 设置聚类簇数为10个
+    if cluster_number:
+        start_range = 2
+        end_range = 11
+    else:
+        start_range = cluster_number
+        end_range = cluster_number+1
+    for i in range(start_range, end_range):  # 设置聚类簇数为10个
         model = KMeans(n_clusters=i)
         model.fit(data)  # 完成聚类
         pred_y = model.predict(data)  # 预测点在哪个聚类中
