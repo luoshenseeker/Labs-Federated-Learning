@@ -58,8 +58,9 @@ def main(args):
 
     if os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") and not force:
         print("-"*100)
-        print("实验存在，进行下一个")
+        print("实验存在且不要求覆盖实验，进行下一个")
         print("-"*100)
+        return
 
     """GET THE DATASETS USED FOR THE FL TRAINING"""
     from data_partition.CIFAR10_dirichlet import get_CIFAR10_dataloaders, get_num_cnt
