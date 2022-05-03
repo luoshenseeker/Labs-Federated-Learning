@@ -392,7 +392,27 @@ def get_CIFAR10_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_d
         )
     list_dls_test_full = torch.utils.data.DataLoader(CIFAR10_test)
 
-    if dataset_name == "CIFAR10_shard":
+    if dataset_name == "CIFAR10_iid":
+        n_clients = 100
+        samples_train, samples_test = 600, 100
+
+        CIFAR10_train_split = torch.utils.data.random_split(
+            CIFAR10_train, [samples_train] * n_clients
+        )
+        list_dls_train = [
+            torch.utils.data.DataLoader(ds, batch_size=batch_size, shuffle=True)
+            for ds in CIFAR10_train_split
+        ]
+
+        CIFAR10_test_split = torch.utils.data.random_split(
+            CIFAR10_test, [samples_test] * n_clients
+        )
+        list_dls_test = [
+            torch.utils.data.DataLoader(ds, batch_size=batch_size, shuffle=True)
+            for ds in CIFAR10_test_split
+        ]
+
+    elif dataset_name == "CIFAR10_shard":
         n_clients = 100
         samples_train, samples_test = 500, 80
 
