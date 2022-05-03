@@ -394,7 +394,7 @@ def get_CIFAR10_dataloaders(dataset_name, batch_size: int, shuffle=True, reset_d
 
     if dataset_name == "CIFAR10_iid":
         n_clients = 100
-        samples_train, samples_test = 600, 100
+        samples_train, samples_test = 500, 100
 
         CIFAR10_train_split = torch.utils.data.random_split(
             CIFAR10_train, [samples_train] * n_clients
