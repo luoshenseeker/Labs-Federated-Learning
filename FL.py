@@ -6,6 +6,32 @@ import pickle
 import time
 import argparse
 import config
+import numpy as np
+from copy import deepcopy
+
+class DatasetObject:
+    def __init__(self, dataset, n_client, name, train_set, test_set):
+        self.dataset  = dataset
+        self.n_client = n_client
+        self.name = name
+        clnt_x = []
+        clnt_y = []
+        for clnt in train_set:
+            for X, y in clnt:
+                clnt_x.append(X.numpy())
+                clnt_y.append(y.numpy().reshape(-1,1))
+        self.clnt_x = np.asarray(clnt_x)
+        self.clnt_y = np.asarray(clnt_y)
+        tst_x = []
+        tst_y = []
+        for clnt in test_set:
+            for X, y in clnt:
+                tst_x.append(X.numpy())
+                tst_y.append(y.numpy().reshape(-1,1))
+        self.tst_x = np.asarray(tst_x)
+        self.tst_y = np.asarray(tst_y)
+        self.train_set = deepcopy(train_set)
+        self.test_set = deepcopy(test_set)
 
 
 def main(args):
@@ -20,7 +46,8 @@ def main(args):
     # print(sys.argv[1:])
     print(args)
 
-    dataset = args.dataset
+    dataset = args.dataset + args.datasetarg
+    model_name = args.dataset
     sampling = args.sampling
     sim_type = args.sim_type
     seed = args.seed
@@ -52,7 +79,7 @@ def main(args):
     from py_func.hyperparams import get_file_name
 
     file_name = get_file_name(
-        dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu, update_method, convex
+        dataset, sampling, sim_type, seed, n_SGD, lr, decay, p, mu, update_method, convex, cluster_number
     )
     print(file_name)
 
@@ -226,6 +253,34 @@ def main(args):
 
     if update_method == "SCAFFOLD":
         """FEDSCAFFOLD with random sampling"""
+        from utils_methods import train_SCAFFOLD
+        data_obj = DatasetObject(dataset=model_name, 
+                                n_client=len(list_dls_train), 
+                                name=file_name, 
+                                train_set=list_dls_train,
+                                test_set=list_dls_test)
+        model_func = lambda : load_model(dataset, seed, convex)
+        data_path = ''
+        import torch
+        if not os.path.exists('%sModel/%s/%s_init_mdl.pt' %(data_path, data_obj.name, model_name)):
+            if not os.path.exists('%sModel/%s/' %(data_path, data_obj.name)):
+                print("Create a new directory")
+                os.mkdir('%sModel/%s/' %(data_path, data_obj.name))
+            torch.save(model_0.state_dict(), '%sModel/%s/%s_init_mdl.pt' %(data_path, data_obj.name, model_name))
+        else:
+            # Load model
+            model_0.load_state_dict(torch.load('%sModel/%s/%s_init_mdl.pt' %(data_path, data_obj.name, model_name)))    
+
+        save_period = 200
+        act_prob = 0.15
+        [fed_mdls_sel, trn_perf_sel, tst_perf_sel, fed_mdls_all, trn_perf_all, tst_perf_all] = train_SCAFFOLD(data_obj=data_obj, act_prob=act_prob ,
+                                            learning_rate=lr, batch_size=batch_size, n_minibatch=n_SGD, file_name=file_name,
+                                            com_amount=n_iter, print_per=n_SGD//2, weight_decay=0, n_sampled=n_sampled,
+                                            model_func=model_func, init_model=model_0,
+                                            sch_step=1, sch_gamma=1, save_period=save_period, suffix=model_name, 
+                                            trial=False, data_path=data_path, lr_decay_per_round=decay)
+
+        sampling = ""
 
         if sampling == "random" and (
                 not os.path.exists(f"saved_exp_info/acc/{file_name}.pkl") or force
@@ -249,25 +304,6 @@ def main(args):
                 training_sets_full=list_dls_train_full,
                 testing_sets_full=list_dls_test_full
             )
-
-            # from py_func.FedProx import FedProx_stratified_sampling
-            #
-            # FedProx_stratified_sampling(
-            #     sampling,
-            #     model_0,
-            #     n_sampled,
-            #     list_dls_train,
-            #     list_dls_test,
-            #     n_iter,
-            #     n_SGD,
-            #     lr,
-            #     file_name,
-            #     sim_type,
-            #     0,
-            #     decay,
-            #     meas_perf_period,
-            #     mu,
-            # )
 
         """Run FEDSCAFFOLD with clustered sampling"""
         if (sampling == "ours") and (
@@ -407,5 +443,5 @@ if __name__ == "__main__":
     # parser.add_argument("--pre-coding", type=float, default=False, help="Applies pre-coding")
     # parser.add_argument("--times", type=int, default=1, help="Running time")
     args = parser.parse_args()
-    args.dataset += args.datasetarg
+    # args.dataset += args.datasetarg
     main(args)
