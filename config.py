@@ -17,7 +17,7 @@ else:
     USE_GPU = True
     # paths
     ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
-
+tmp_save_model_path = "/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/tmp_state_dict.sd"
 # train_rating = main_path + '{}.train.rating'.format(dataset)
 # test_rating = main_path + '{}.test.rating'.format(dataset)
 # test_negative = main_path + '{}.test.negative'.format(dataset)
