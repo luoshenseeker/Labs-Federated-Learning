@@ -569,7 +569,7 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.X_data)
 
     def __getitem__(self, idx):
-        if self.name == 'mnist' or self.name == 'synt' or self.name == 'emnist' or self.name[:6] == "FMNIST":
+        if self.name == 'MNIST' or self.name == 'synt' or self.name == 'emnist' or self.name[:6] == "FMNIST":
             X = self.X_data[idx, :]
             if isinstance(self.y_data, bool):
                 return X
