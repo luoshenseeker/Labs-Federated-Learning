@@ -4,7 +4,7 @@ This paper can be found [here](http://proceedings.mlr.press/v139/fraboni21a.html
 
 ## Download the dependencies
 
-This work is done using PyTorch 1.4.0 .
+This work is done using PyTorch 1.7.1 .
 
 
 ## Datasets
@@ -25,6 +25,7 @@ We run a wide range of experiments in this work. `experiments.txt`, `experiments
 ## Running an experiment
 
 Running an experiment requires to use `FL.py`. This code takes as input:
+- `-h` for help
 - The `dataset` used.
 - The `sampling` scheme used. Either `random` for MD sampling, `clustered_1` and `clustered_2` for clustered sampling with Algorithm 1 and 2, or `FedAvg` for the initial sampling scheme proposed in FedAvg.
 - The similarity measure `sim_type` used for the clients representative gradients. With `clustered_2` put either `cosine`, `L2` or `L1` and, with other sampling, put `any`. 
@@ -40,7 +41,7 @@ Every experiment saves by default the training loss, the testing accuracy, and t
 
 
 ## Plotting the figures
-`plots_paper.py` plots the figures in the paper and `plots_appendix.py` plots the ones in the appendix. We note that these codes work only if the FL experiments needed for them have already been run.
+`plots_*_temp.py` plots the figures in the paper and `plots_appendix.py` plots the ones in the appendix. We note that these codes work only if the FL experiments needed for them have already been run.
 
 
 
