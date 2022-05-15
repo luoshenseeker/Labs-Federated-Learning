@@ -1,6 +1,4 @@
-# Clustered Sampling: Low-Variance and Improved Representativity for Clients Selection in Federated Learning
-
-This paper can be found [here](http://proceedings.mlr.press/v139/fraboni21a.html).
+# HCSFed：Hybrid-Client-Selection
 
 ## Download the dependencies
 
