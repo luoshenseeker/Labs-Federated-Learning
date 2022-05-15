@@ -8,6 +8,10 @@ from data_partition.CIFAR10_dirichlet import get_CIFAR10_dataloaders
 
 from saved_exp_info.pkl_dictionary import pkl_dict, not_final_pkl_dict, acc_pkl_dict
 
+print_threshold = 70
+
+print_str_list = []
+
 def read_pkl_origin(filename):
     np.set_printoptions(threshold=np.inf)   # 解决显示不完全问题
 
@@ -22,7 +26,7 @@ def read_pkl_origin(filename):
 
     server_acc = acc_hist
 
-
+    first_reach = False
     # 新版需用
     server_acc = []
     # server_loss = np.dot(weights, loss_hist[i + 1])
@@ -30,7 +34,14 @@ def read_pkl_origin(filename):
         n_samples = np.array([200 for _ in range(100)])
         weights = n_samples / np.sum(n_samples)   # sample size为聚合权重
         if np.dot(weights, acc_hist[i]) != 0.0:
-            server_acc.append(np.dot(weights, acc_hist[i]))
+            now = np.dot(weights, acc_hist[i])
+            if not first_reach and now >= print_threshold:
+                print_str_list.append(filename.split("/")[-1])
+                print_str_list.append(f"Reached threashold {print_threshold} at {i+1}")
+                print(filename)
+                print(f"Reached threashold {print_threshold} at {i+1}")
+                first_reach = True
+            server_acc.append(now)
 
     return server_acc
 
@@ -68,7 +79,7 @@ def get_exp_name(s: str):
             exp_name = f"{name_list[dataset_pos]} shard q={name_list[clustered_p_pos + offset][para_name_show:]}"
     return exp_name
 
-def plot_acc_with_order(exp_name: str, pkl_file: list):
+def plot_acc_with_order(exp_name: str, pkl_file: list, legends = [], figure = (8, 6)):
     # '1.3', 2.6.c
     # exp_name = ['1.1', '1.2', '1.4', '1.5', '1.6', '1.7', '2.1', '2.2', '2.3', '2.4', '2.5', '2.7']
     # exp_name = ['4.0']
@@ -104,6 +115,7 @@ def plot_acc_with_order(exp_name: str, pkl_file: list):
 
     acc = pd.DataFrame()
 
+    plt.figure(figsize=figure)
     n = len(pkl_file)
     for k in range(n):
 
@@ -141,11 +153,15 @@ def plot_acc_with_order(exp_name: str, pkl_file: list):
     #     xxx[x] = pkl_file[x][-9:-4]
     # plt.legend(labels=xxx)
 
-    if n == 4:
-        plt.legend(labels=["Random", "Importance", "Cluster", "Ours"])
-    elif n == 3:
-        # plt.legend(loc='lower right', labels=["random_sampling", "cluster_sampling", "ours"])
-        plt.legend(loc='lower right',labels=["random_sampling", "importance_sampling", "ours"])
+    if not legends:
+        if n == 4:
+            plt.legend(labels=["Random", "Importance", "Cluster", "Ours"])
+        elif n == 3:
+            # plt.legend(loc='lower right', labels=["random_sampling", "cluster_sampling", "ours"])
+            plt.legend(loc='lower right',labels=["random_sampling", "importance_sampling", "ours"])
+            # plt.legend(loc='lower right',labels=["random_sampling", "importance_sampling", "ours"])
+    else:
+        plt.legend(labels=legends)
 
     # filename = exp_name+'_acc'
     plt.xlim([start, end])  #设置x轴显示的范围
@@ -158,7 +174,31 @@ def plot_acc_with_order(exp_name: str, pkl_file: list):
     # plt.show()
 
     print("Saved")
+    for s in print_str_list:
+        print(s)
 
 if __name__ == "__main__":
-    plot_acc_with_order("FMNIST random", ["FMNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl"
-    , "FMNIST_shard_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl"])
+    # plot_acc_with_order("Mnist shard conv", [
+    #     "MNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     "MNIST_shard_random_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl", 
+    #     "MNIST_shard_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     "MNIST_shard_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+    #     ])
+    plot_acc_with_order(r"MNIST_{conv} ours 0.01-1", [
+        # "MNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl",
+        # "MNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.2_m1_0_SCAFFOLD_ncon.pkl", 
+        # "MNIST_shard_clustered_1_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        # "MNIST_shard_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        # "CIFAR10_iid_FedAvg_any_i800_N50_lr0.01_B50_d1.0_p0.1_m1_0_SCAFFOLD_ncon.pkl",
+        "MNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv.pkl",
+        "MNIST_shard_FedAvg_any_i200_N50_lr0.01_B50_d1.0_p0.2_m1_0_AVG_conv.pkl",
+        "MNIST_bbal_0.01_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv_cn0.pkl",
+        "MNIST_bbal_0.1_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv_cn0.pkl",
+        "MNIST_bbal_1_ours_any_i200_N50_lr0.01_B50_d1.0_p0.1_m1_0_AVG_conv_cn0.pkl"
+        ],
+        # ["a=1", "a=0.1", "a=0.05", "a=0.01"]
+        ["random,p=0.1", "random,p=0.2", "a=0.01","a=0.1", "a=1"],
+        (8, 4)
+    )
+
+    # 0.5 touch 60: 
