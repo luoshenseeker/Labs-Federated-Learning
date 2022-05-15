@@ -8,16 +8,16 @@ sysstr = platform.system()
 if sysstr == "Linux":
     USE_GPU = True
     # paths
-    ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
+    ROOT_PATH = 'YOUR WORK DIR/'
 elif sysstr == "Windows":
     USE_GPU = False
     # paths
-    ROOT_PATH = "C:\\Users\\luoshenseeker\\home\\work\\科研\\Selection\\Labs-Federated-Learning\\"
+    ROOT_PATH = "YOUR WORK DIR\\"
 else:
     USE_GPU = True
     # paths
-    ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
-tmp_save_model_path = "/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/tmp_state_dict.sd"
+    ROOT_PATH = 'YOUR WORK DIR/'
+tmp_save_model_path = "YOUR WORK DIR/saved_exp_info/tmp_state_dict.sd"
 # train_rating = main_path + '{}.train.rating'.format(dataset)
 # test_rating = main_path + '{}.test.rating'.format(dataset)
 # test_negative = main_path + '{}.test.negative'.format(dataset)

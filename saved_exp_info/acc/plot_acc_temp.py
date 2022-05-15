@@ -11,9 +11,9 @@ from saved_exp_info.pkl_dictionary import pkl_dict, not_final_pkl_dict, acc_pkl_
 def read_pkl_origin(filename):
     np.set_printoptions(threshold=np.inf)   # 解决显示不完全问题
 
-    # filename = "/home/shengy/luoshenseeker/Labs-Federated-Learning/data/NIID-Bench-origin/saved_exp_info/acc/" + filename
+    # filename = "YOUR WORK DIR/data/NIID-Bench-origin/saved_exp_info/acc/" + filename
     # print('!origin!')
-    filename = "/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/acc/" + filename
+    filename = "YOUR WORK DIR/saved_exp_info/acc/" + filename
     print('!old!')
 
     fr=open(filename,'rb')

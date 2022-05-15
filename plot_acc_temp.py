@@ -15,9 +15,9 @@ print_str_list = []
 def read_pkl_origin(filename):
     np.set_printoptions(threshold=np.inf)   # 解决显示不完全问题
 
-    # filename = "/home/shengy/luoshenseeker/Labs-Federated-Learning/data/NIID-Bench-origin/saved_exp_info/acc/" + filename
+    # filename = "YOUR WORK DIR/data/NIID-Bench-origin/saved_exp_info/acc/" + filename
     # print('!origin!')
-    filename = "/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/acc/" + filename
+    filename = "YOUR WORK DIR/saved_exp_info/acc/" + filename
     print('!old!')
 
     fr=open(filename,'rb')
@@ -170,7 +170,7 @@ def plot_acc_with_order(exp_name: str, pkl_file: list, legends = [], figure = (8
     plt.ylabel('Test Accuracy', {'size':15})
     plt.title(exp_name, {'size':18})
     # # plt.title('MNIST Non-iid p=1', {'size':18})  # title的大小设置为18
-    plt.savefig(f'/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/plot_result/{exp_name}.png', format='png', dpi=600, bbox_inches="tight")
+    plt.savefig(f'YOUR WORK DIR/saved_exp_info/plot_result/{exp_name}.png', format='png', dpi=600, bbox_inches="tight")
     # plt.show()
 
     print("Saved")

@@ -12,7 +12,7 @@ from saved_exp_info.pkl_dictionary import pkl_dict, not_final_pkl_dict
 def read_pkl(filename):
     np.set_printoptions(threshold=np.inf)   # 解决显示不完全问题
 
-    filename = "/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/loss/" + filename
+    filename = "YOUR WORK DIR/saved_exp_info/loss/" + filename
     fr=open(filename,'rb')
 
     acc_hist = pickle.load(fr)
@@ -140,7 +140,7 @@ def plot_loss_with_order(exp_name: str, pkl_file: list):
     plt.title(exp_name, {'size':18})
     # # plt.title('MNIST Non-iid p=1', {'size':18})  # title的大小设置为18
     # plt.savefig(f'../plot_result/{exp_name}_md.pdf', format='pdf', dpi=600, bbox_inches="tight")
-    plt.savefig(f'/home/shengy/luoshenseeker/Labs-Federated-Learning/saved_exp_info/plot_result/{exp_name}.png', format='png', dpi=600, bbox_inches="tight")
+    plt.savefig(f'YOUR WORK DIR/saved_exp_info/plot_result/{exp_name}.png', format='png', dpi=600, bbox_inches="tight")
     # plt.show()
 
 if __name__ == "__main__":

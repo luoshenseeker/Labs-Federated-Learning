@@ -8,15 +8,15 @@ sysstr = platform.system()
 if sysstr == "Linux":
     USE_GPU = True
     # paths
-    ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
+    ROOT_PATH = 'YOUR WORK DIR/'
 elif sysstr == "Windows":
     USE_GPU = False
     # paths
-    ROOT_PATH = "C:\\Users\\luoshenseeker\\home\\work\\科研\\Selection\\Labs-Federated-Learning\\"
+    ROOT_PATH = "YOUR WORK DIR\\"
 else:
     USE_GPU = True
     # paths
-    ROOT_PATH = '/home/shengy/luoshenseeker/Labs-Federated-Learning/'
+    ROOT_PATH = 'YOUR WORK DIR/'
 
 # train_rating = main_path + '{}.train.rating'.format(dataset)
 # test_rating = main_path + '{}.test.rating'.format(dataset)
